@@ -85,13 +85,14 @@ public class BuscadorSecuencial {
      * @param contenido el texto de la página en el que se buscan coincidencias
      * @return la cantidad de coincidencias encontradas
      */
-    
     public int buscarCoincidencia(String palabra, String contenido) {
+        palabra = palabra.toLowerCase();//para no fallar si existen coincidencias con mayúsculas o minusculas
         int coincidencias = 0;
+
         while (contenido.contains(palabra)) {
             contenido = contenido.substring(contenido.indexOf(palabra) + palabra.length(), contenido.length());
             coincidencias++;
-        }
+        }        
         return coincidencias;
     }
 
@@ -155,7 +156,7 @@ public class BuscadorSecuencial {
         if (urls != null) {
             for (int i = 0; i < urls.length; i++) {
                 String contenido = busqueda.leerPagina(urls[i]);
-                int coincidencias = busqueda.buscarCoincidencia("Emprego", contenido);
+                int coincidencias = busqueda.buscarCoincidencia("budismo", contenido);
                 System.out.println("Coincidencias en " + urls[i] + " : " + coincidencias);
             }
         }
