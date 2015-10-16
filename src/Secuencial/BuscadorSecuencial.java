@@ -85,6 +85,7 @@ public class BuscadorSecuencial {
      * @param contenido el texto de la página en el que se buscan coincidencias
      * @return la cantidad de coincidencias encontradas
      */
+    
     public int buscarCoincidencia(String palabra, String contenido) {
         int coincidencias = 0;
         while (contenido.contains(palabra)) {
