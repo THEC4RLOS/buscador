@@ -56,6 +56,7 @@ public class BuscadorSecuencial {
                 coincidencias ++;
             }
         }
+        
         return coincidencias;
     }
 
