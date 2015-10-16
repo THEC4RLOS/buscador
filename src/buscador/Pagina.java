@@ -10,9 +10,7 @@ import org.jsoup.nodes.Document;
 
 // Busca  una palabra en cada pagina
 public class Pagina extends RecursiveTask<Integer> {
-/*
 
-    */
     private ArrayList<String> paginasWeb = null;
     private ArrayList<String> linkPagina = null;
     private String palabra = "";
@@ -44,8 +42,7 @@ public class Pagina extends RecursiveTask<Integer> {
             return result;
 
         } else {
-            //System.out.println("Doing workLoad myself: " + this.workLoad);
-            //vecesEncontrada = textoAux.indexOf(palabra);
+            
             int mergedResult = 0;
             try {
                 Document doc = Jsoup.connect(this.linkPagina.get(0)).get();
@@ -67,14 +64,23 @@ public class Pagina extends RecursiveTask<Integer> {
 
         //ArrayList<String> linkPaginaAux = this.paginasWeb.get(0);
         
-        ArrayList<String> head = (ArrayList<String>)this.paginasWeb.subList(0, 1);
-        ArrayList<String> tail = (ArrayList<String>)this.paginasWeb.subList(1, this.paginasWeb.size());
+        
 
         
-        //this.paginasWeb.remove(0);
+        /*
+        ArrayList<String> head = (ArrayList<String>)this.paginasWeb.subList(0, 1);
+        ArrayList<String> tail = (ArrayList<String>)this.paginasWeb.subList(1, this.paginasWeb.size());
+        
         Pagina subtask1 = new Pagina(this.paginasWeb, head, this.palabra);
         Pagina subtask2 = new Pagina(this.paginasWeb, tail, this.palabra);
-        //Paginas subtask2 = new Pagina(texto, textoAux.substring(mid+1, textoAux.length()), palabra);
+        */
+        
+        ArrayList<String> linkPaginaAux = new ArrayList<>();
+        linkPaginaAux.add(this.paginasWeb.get(0));
+        this.paginasWeb.remove(0);
+        Pagina subtask1 = new Pagina(this.paginasWeb, linkPaginaAux, this.palabra);
+        Pagina subtask2 = new Pagina(this.paginasWeb, this.paginasWeb, this.palabra);
+        
 
         subtasks.add(subtask1);
         subtasks.add(subtask2);

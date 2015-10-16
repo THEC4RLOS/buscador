@@ -29,9 +29,9 @@ public class Buscador {
         ArrayList<String> pw = new ArrayList<>();
         //pw.add("http://elpais.com/elpais/portada_america.html");//2
         //pw.add("http://edition.cnn.com/");//
-        pw.add("http://www.foxnews.com/"); // 6
+        pw.add("http://www.foxnews.com/"); // 5
         pw.add("http://www.20minutos.es/");// 1
-        pw.add("http://www.wsj.com/"); // 4
+        pw.add("http://www.wsj.com/"); // 3
         String p = "Obama";
         Pagina myRecursiveTask = new Pagina(pw,pw,p);
         int cores = Runtime.getRuntime().availableProcessors();

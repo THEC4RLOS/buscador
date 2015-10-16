@@ -12,5 +12,5 @@ package Secuencial;
 public class Resultado {
     int coincidencias;
     String url;
-    String[] textoCoincidencia;
+    String textoCoincidencia;
 }
