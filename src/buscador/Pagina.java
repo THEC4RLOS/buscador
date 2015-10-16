@@ -10,12 +10,14 @@ import org.jsoup.nodes.Document;
 
 // Busca  una palabra en cada pagina
 public class Pagina extends RecursiveTask<Integer> {
+/*
 
+    */
     private ArrayList<String> paginasWeb = null;
-    private String linkPagina = "";
+    private ArrayList<String> linkPagina = null;
     private String palabra = "";
 
-    public Pagina(ArrayList<String> paginasWeb, String linkPagina, String palabra) {
+    public Pagina(ArrayList<String> paginasWeb, ArrayList<String> linkPagina, String palabra) {
         this.paginasWeb = paginasWeb;
         this.linkPagina = linkPagina;
         this.palabra = palabra;
@@ -25,7 +27,7 @@ public class Pagina extends RecursiveTask<Integer> {
     protected Integer compute() {
 
         //if work is above threshold, break tasks up into smaller tasks
-        if (paginasWeb.size() > 0) {
+        if (this.linkPagina.size() != 1) {
             //System.out.println("Splitting workLoad : " + this.workLoad);
 
             List<Pagina> subtasks = new ArrayList<>();
@@ -43,15 +45,17 @@ public class Pagina extends RecursiveTask<Integer> {
 
         } else {
             //System.out.println("Doing workLoad myself: " + this.workLoad);
-            //vecesEncontrada =textoAux.indexOf(palabra);
+            //vecesEncontrada = textoAux.indexOf(palabra);
             int mergedResult = 0;
             try {
-                Document doc = Jsoup.connect(this.linkPagina).get();
+                Document doc = Jsoup.connect(this.linkPagina.get(0)).get();
                 //String title = doc.body().text();
-                Texto tareaTexto = new Texto(0, doc.body().text(), doc.body().text(), this.palabra);
+                
+                Texto tareaTexto = new Texto(0, doc.text(), doc.text(), this.palabra);
                 int cores = Runtime.getRuntime().availableProcessors();
                 ForkJoinPool forkJoinPool = new ForkJoinPool(cores);
                 mergedResult = forkJoinPool.invoke(tareaTexto);
+                
             } catch (IOException e) {
             }
             return mergedResult;
@@ -60,31 +64,22 @@ public class Pagina extends RecursiveTask<Integer> {
 
     private List<Pagina> createSubtasks() {
         List<Pagina> subtasks = new ArrayList<>();
-        String linkPaginaAux = this.paginasWeb.get(0);
-        this.paginasWeb.remove(0);
-        Pagina subtask1 = new Pagina(this.paginasWeb, linkPaginaAux, this.palabra);
+
+        //ArrayList<String> linkPaginaAux = this.paginasWeb.get(0);
+        
+        ArrayList<String> head = (ArrayList<String>)this.paginasWeb.subList(0, 1);
+        ArrayList<String> tail = (ArrayList<String>)this.paginasWeb.subList(1, this.paginasWeb.size());
+
+        
+        //this.paginasWeb.remove(0);
+        Pagina subtask1 = new Pagina(this.paginasWeb, head, this.palabra);
+        Pagina subtask2 = new Pagina(this.paginasWeb, tail, this.palabra);
         //Paginas subtask2 = new Pagina(texto, textoAux.substring(mid+1, textoAux.length()), palabra);
 
         subtasks.add(subtask1);
-        //subtasks.add(subtask2);
+        subtasks.add(subtask2);
 
         return subtasks;
     }
 
-    public static void main(String[] args) throws Exception {
-        
-        ArrayList<String> pw = new ArrayList<>();
-        pw.add("http://elpais.com/elpais/portada_america.html");// 1
-        pw.add("http://edition.cnn.com/");// 1
-        pw.add("http://www.foxnews.com/"); //5
-        pw.add("http://www.20minutos.es/");// 1
-        pw.add("http://www.wsj.com/"); // 7
-        String p = "Obama";
-        Pagina myRecursiveTask = new Pagina(pw,"",p);
-        int cores = Runtime.getRuntime().availableProcessors();
-        ForkJoinPool forkJoinPool = new ForkJoinPool(cores);
-        int mergedResult = forkJoinPool.invoke(myRecursiveTask);
-
-        System.out.println("mergedResult = " + mergedResult);
-    }
 }
