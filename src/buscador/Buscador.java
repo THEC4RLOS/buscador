@@ -2,18 +2,54 @@
 package buscador;
 
 import Paralelo.Palabra;
+import Secuencial.Resultado;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.FileVisitResult;
 import java.util.ArrayList;
 import java.util.concurrent.ForkJoinPool;
+import modelo.PaginasWeb;
 
 public class Buscador {
+    
+    public ArrayList<PaginasWeb> paginasWeb;
 
-    /**
-     * @param args the command line arguments
-     */
+    public Buscador(ArrayList<PaginasWeb> paginasWeb) {
+        this.paginasWeb = paginasWeb;
+    }
+
+    public void addItemPaginasWeb(Resultado resultado) {
+        if (existeSitioWeb(resultado.getUrl()))
+            updateItem(resultado);
+        else
+        {
+            ArrayList<Resultado> nArrayListResultado = new ArrayList<>();
+            nArrayListResultado.add(resultado);
+            PaginasWeb nPaginasWeb = new PaginasWeb(resultado.getUrl(), nArrayListResultado);
+            this.paginasWeb.add(nPaginasWeb);
+        }
+    }
+    
+    public boolean existeSitioWeb (String url){
+        for(PaginasWeb sitio: this.paginasWeb){
+            if(sitio.getUrl().equals(url))
+                return true;
+        }
+        return false;
+    }
+    
+    public void updateItem(Resultado resultado){
+        ArrayList<Resultado> aux;
+        for(PaginasWeb sitio: this.paginasWeb){
+            if(sitio.getUrl().equals(resultado.getUrl())){
+                aux = sitio.getListaResultados();
+                aux.add(resultado);
+            }
+        }
+    }
+    
     public static void main(String[] args) {
         
         ArrayList<String> pw = new ArrayList<>();
