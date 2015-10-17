@@ -9,9 +9,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.apache.commons.lang.ArrayUtils;
 
 /**
  *
@@ -20,7 +22,7 @@ import org.apache.commons.lang.ArrayUtils;
 public class BuscadorSecuencial {
 
     Resultado[] resultados;
-    int tiempo;
+    long tiempo;
 
     /**
      * Función para leer el contenido de una página
@@ -144,7 +146,7 @@ public class BuscadorSecuencial {
         this.resultados = new Resultado[urls.length];
         if (urls != null) {
             for (int i = 0; i < resultados.length; i++) {
-                String contenido = leerPagina(urls[i]);
+                String contenido = getContenidoHTML(urls[i]);
                 Resultado resultado = buscarCoincidencia(palabra, contenido, urls[i]);
 
                 //si es el primer                                
@@ -201,10 +203,30 @@ public class BuscadorSecuencial {
         }
     }
 
+    private String getContenidoHTML(String pagina) throws IOException {
+        try {
+            // the HTML to convert
+            URL url = new URL(pagina);
+            URLConnection conn = url.openConnection();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+            String inputLine;
+            String finalContents = "";
+            while ((inputLine = reader.readLine()) != null) {
+                finalContents += "\n" + inputLine.replace("<br", "\n<br");
+            }
+            return finalContents;
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
     public static void main(String[] args) throws IOException {
         BuscadorSecuencial buscador = new BuscadorSecuencial();
 
+        long startTime = System.currentTimeMillis();
         buscador.buscar("vida");
+        long estimatedTime = System.currentTimeMillis() - startTime;
+        buscador.tiempo = estimatedTime / 1000;
         System.out.println("largo: " + buscador.resultados.length);
         for (int i = 0; i < buscador.resultados.length; i++) {
             if (buscador.resultados[i].getCoincidencias() > 0) {
@@ -212,5 +234,6 @@ public class BuscadorSecuencial {
                 System.out.println("----------------------------------------------------------------");
             }
         }
+        System.out.println("tiempo de ejecución:" + buscador.tiempo + "segundos");
     }
 }
