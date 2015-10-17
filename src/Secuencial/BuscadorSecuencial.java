@@ -39,22 +39,6 @@ public class BuscadorSecuencial {
         }
     }
 
-    /**
-     * Función para crear un arreglo de palabras a partir del contenido de un
-     * string
-     *
-     * @param contenido contenido de la página (texto a separar en palabras)
-     * @return devuelve un arreglo de string (palabras) del contenido de la
-     * página
-     */
-    public String[] split(String contenido) {
-        //StringTokenizer tokenPalabras = new StringTokenizer(contenido);
-        //String [] palabras = new String[tokenPalabras.countTokens()];
-        String[] palabras = contenido.split("\\s");
-
-        return palabras;
-    }
-
     private String capitalize(String palabra) {
         return Character.toUpperCase(palabra.charAt(0)) + palabra.substring(1);
     }
@@ -68,7 +52,7 @@ public class BuscadorSecuencial {
      * @param url
      * @return la cantidad de coincidencias encontradas
      */
-    public Resultado buscarCoincidencia(String palabra, String contenido, String url) {
+    public Resultado buscarCoincidencia(String palabra, String contenido, String url) throws IOException {
         int coincidencias = 0;
         String texto = null;
         palabra = palabra.toLowerCase();
@@ -95,8 +79,9 @@ public class BuscadorSecuencial {
             contenidoAux = contenidoAux.substring(contenidoAux.indexOf(palabra) + palabra.length(), contenidoAux.length());
             coincidencias++;
         }
-
-        Resultado resultado = new Resultado(coincidencias, url, texto, "");
+        Document doc = Jsoup.connect(url).get();
+        String titulo = doc.title();
+        Resultado resultado = new Resultado(coincidencias, url, texto, titulo);
         return resultado;
     }
 
@@ -154,13 +139,11 @@ public class BuscadorSecuencial {
         return null;
     }
 
-    public Resultado[] buscar(String palabra) {
+    public Resultado[] buscar(String palabra) throws IOException {
         String[] urls = leerURLs("//home//manfred//NetBeansProjects//TaskforceProjects//Buscador//trunk//src//Secuencial//urls.txt");
         this.resultados = new Resultado[urls.length];
         if (urls != null) {
             for (int i = 0; i < resultados.length; i++) {
-                //System.out.println(i);
-                //System.out.println("@"+resultados.length);
                 String contenido = leerPagina(urls[i]);
                 Resultado resultado = buscarCoincidencia(palabra, contenido, urls[i]);
 
@@ -218,7 +201,7 @@ public class BuscadorSecuencial {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         BuscadorSecuencial buscador = new BuscadorSecuencial();
 
         buscador.buscar("vida");

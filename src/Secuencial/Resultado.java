@@ -15,7 +15,7 @@ public class Resultado {
     }
     
     public String descripcion(){
-        String desc = "\n URL: "+this.url+"\n Coincidencias: "+this.coincidencias+"\n texto: "+ this.textoCoincidencia;
+        String desc = "\n Titulo: "+this.Titulo+"\n URL: "+this.url+"\n Coincidencias: "+this.coincidencias+"\n texto: "+ this.textoCoincidencia;
         return desc;
     }
 
