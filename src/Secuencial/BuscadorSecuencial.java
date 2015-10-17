@@ -219,7 +219,12 @@ public class BuscadorSecuencial {
             return null;
         }
     }
-
+            
+    public void searchManager(String terminoBusqueda){    
+        String [] terminos = terminoBusqueda.split("\\s");
+        
+    }
+    
     public static void main(String[] args) throws IOException {
         BuscadorSecuencial buscador = new BuscadorSecuencial();
 
