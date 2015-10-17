@@ -1,4 +1,4 @@
-package buscador;
+package Paralelo;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,7 +26,6 @@ public class Pagina extends RecursiveTask<Integer> {
 
         //if work is above threshold, break tasks up into smaller tasks
         if (this.linkPagina.size() != 1) {
-            //System.out.println("Splitting workLoad : " + this.workLoad);
 
             List<Pagina> subtasks = new ArrayList<>();
             subtasks.addAll(createSubtasks());
@@ -42,11 +41,9 @@ public class Pagina extends RecursiveTask<Integer> {
             return result;
 
         } else {
-            
             int mergedResult = 0;
             try {
                 Document doc = Jsoup.connect(this.linkPagina.get(0)).get();
-                //String title = doc.body().text();
                 
                 Texto tareaTexto = new Texto(0, doc.text(), doc.text(), this.palabra);
                 int cores = Runtime.getRuntime().availableProcessors();
@@ -61,19 +58,6 @@ public class Pagina extends RecursiveTask<Integer> {
 
     private List<Pagina> createSubtasks() {
         List<Pagina> subtasks = new ArrayList<>();
-
-        //ArrayList<String> linkPaginaAux = this.paginasWeb.get(0);
-        
-        
-
-        
-        /*
-        ArrayList<String> head = (ArrayList<String>)this.paginasWeb.subList(0, 1);
-        ArrayList<String> tail = (ArrayList<String>)this.paginasWeb.subList(1, this.paginasWeb.size());
-        
-        Pagina subtask1 = new Pagina(this.paginasWeb, head, this.palabra);
-        Pagina subtask2 = new Pagina(this.paginasWeb, tail, this.palabra);
-        */
         
         ArrayList<String> linkPaginaAux = new ArrayList<>();
         linkPaginaAux.add(this.paginasWeb.get(0));
@@ -81,7 +65,6 @@ public class Pagina extends RecursiveTask<Integer> {
         Pagina subtask1 = new Pagina(this.paginasWeb, linkPaginaAux, this.palabra);
         Pagina subtask2 = new Pagina(this.paginasWeb, this.paginasWeb, this.palabra);
         
-
         subtasks.add(subtask1);
         subtasks.add(subtask2);
 

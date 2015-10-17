@@ -1,46 +1,29 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package buscador;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.*;
+import Paralelo.Palabra;
 import java.util.ArrayList;
 import java.util.concurrent.ForkJoinPool;
-import org.jsoup.nodes.Document;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.*;
 
-/**
- *
- * @author carlos
- */
 public class Buscador {
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         
         ArrayList<String> pw = new ArrayList<>();
         //pw.add("http://elpais.com/elpais/portada_america.html");//2
-        //pw.add("http://edition.cnn.com/");//
-        pw.add("http://www.foxnews.com/"); // 5
-        pw.add("http://www.20minutos.es/");// 1
-        pw.add("http://www.wsj.com/"); // 3
-        String p = "Obama";
-        Pagina myRecursiveTask = new Pagina(pw,pw,p);
+        pw.add("http://edition.cnn.com/");// 0 5
+        pw.add("http://www.20minutos.es/");// 0 0
+        pw.add("http://www.wsj.com/"); // 3 7 8
+        String p = "Obama | with | Wall";
+        Palabra myRecursiveTask = new Palabra(pw,p);
         int cores = Runtime.getRuntime().availableProcessors();
         ForkJoinPool forkJoinPool = new ForkJoinPool(cores);
         int mergedResult = forkJoinPool.invoke(myRecursiveTask);
 
         System.out.println("mergedResult = " + mergedResult);
-        
-
     }
 }
 /*

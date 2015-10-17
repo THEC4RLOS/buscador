@@ -1,4 +1,4 @@
-package buscador;
+package Paralelo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,8 +41,7 @@ public class Texto extends RecursiveTask<Integer> {
             return result;
 
         } else {
-            //System.out.println("Doing workLoad myself: " + this.workLoad);
-            //vecesEncontrada =textoAux.indexOf(palabra);
+            
             int contador=0;
             while (textoAux.contains(palabra)) {
                 textoAux = textoAux.substring(textoAux.indexOf(palabra)+palabra.length(),textoAux.length());
