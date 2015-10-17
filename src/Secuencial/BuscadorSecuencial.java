@@ -55,28 +55,7 @@ public class BuscadorSecuencial {
         return Character.toUpperCase(palabra.charAt(0)) + palabra.substring(1);
     }
 
-    /*public int buscarCoincidencia(String palabra, String[] palabras) {
-     int coincidencias = 0;
-     String palabraCap = capitalize(palabra);
-
-     for (int i = 0; i < palabras.length; i++) {
-     if (palabras[i].equals(palabra) || palabras[i].equals(palabra + ",")
-     || palabras[i].equals(palabra + ".") || palabras[i].equals(palabra + ":")
-     || palabras[i].equals(palabra + ";") || palabraCap.equals(palabras[i])
-     || palabras[i].equals("("+palabra+")") || palabras[i].equals("("+palabra+").")
-     || palabras[i].equals("("+palabra+"),")|| palabras[i].equals(palabra+")")
-     || palabras[i].equals("("+palabra)
-     || palabraCap.equals(palabras[i]+",") || palabraCap.equals(palabras[i]+".")
-     || palabraCap.equals(palabras[i]+":") || palabraCap.equals(palabras[i]+";")
-     || palabraCap.equals("("+palabras[i]+")") || palabraCap.equals("("+palabras[i]+").")
-     || palabraCap.equals("("+palabras[i]+"),")|| palabraCap.equals(palabras[i]+")")
-     || palabraCap.equals("("+palabras[i])) {
-     System.out.println(palabras[i]);
-     coincidencias++;
-     }
-     }
-     return coincidencias;
-     }*/
+ 
     /**
      * Función para buscar las coincidencias de una palabra en el contenido de
      * la página
@@ -87,28 +66,31 @@ public class BuscadorSecuencial {
      */
     public int buscarCoincidencia(String palabra, String contenido) {
         int coincidencias = 0;
-        palabra = palabra.toLowerCase();
         String texto = null;
-        String contenidoAux =  contenido.toLowerCase();
-//        System.out.println(contenido);
-        while (contenido.contains(palabra)) {
+       //System.out.println(contenido);
+        
+        palabra =  palabra.toLowerCase();
+        String contenidoAux = contenido.toLowerCase();
+        
+        while (contenidoAux.contains(palabra)) {
             //System.out.println(contenido.substring(contenido.indexOf(palabra),contenido.indexOf(palabra)+palabra.length()));
             if (texto == null) {
-                if (contenido.indexOf(palabra) - 40 >= 0 && contenido.indexOf(palabra) + palabra.length() + 40 < contenido.length()) {
+                if (contenidoAux.indexOf(palabra) - 40 >= 0 && contenidoAux.indexOf(palabra) + palabra.length() + 40 < contenidoAux.length()) {
 
-                    texto = "..." + contenido.substring(contenido.indexOf(palabra) - 40, contenido.indexOf(palabra) + palabra.length() + 40) + "...";
+                    texto = "..." + contenido.substring(contenidoAux.indexOf(palabra) - 40, contenidoAux.indexOf(palabra) + palabra.length() + 40) + "...";
                     
-                } else if (contenido.indexOf(palabra) - 40 >= 0 && contenido.indexOf(palabra) + palabra.length() + 40 >= contenido.length()) {
+                } else if (contenidoAux.indexOf(palabra) - 40 >= 0 && contenidoAux.indexOf(palabra) + palabra.length() + 40 >= contenidoAux.length()) {
                     
-                    texto = "..." + contenido.substring(contenido.indexOf(palabra) - 40, contenido.indexOf(palabra) + palabra.length());
-                } else if (contenido.indexOf(palabra) - 40 <= 0 && contenido.indexOf(palabra) + palabra.length() + 40 <= contenido.length()) {
+                    texto = "..." + contenido.substring(contenidoAux.indexOf(palabra) - 40, contenidoAux.indexOf(palabra) + palabra.length());
+                    
+                } else if (contenidoAux.indexOf(palabra) - 40 <= 0 && contenidoAux.indexOf(palabra) + palabra.length() + 40 <= contenidoAux.length()) {
 //                    System.out.println("Aqui");
-                    texto = contenido.substring(contenido.indexOf(palabra), contenido.indexOf(palabra) + palabra.length() + 40) + "...";
-                } else if (contenido.indexOf(palabra) - 40 >= 0 && contenido.indexOf(palabra) + palabra.length() + 40 <= contenido.length()) {
-                    texto = "..." + contenido.substring(contenido.indexOf(palabra) - 1, contenido.indexOf(palabra) - 1);
-                }
+                    texto = contenido.substring(contenidoAux.indexOf(palabra), contenidoAux.indexOf(palabra) + palabra.length() + 40) + "...";
+                    
+                } 
             }
-            contenido = contenido.substring(contenido.indexOf(palabra) + palabra.length(), contenido.length());
+            contenido = contenido.substring(contenidoAux.indexOf(palabra) + palabra.length(), contenidoAux.length());
+            contenidoAux = contenidoAux.substring(contenidoAux.indexOf(palabra) + palabra.length(), contenidoAux.length());
             coincidencias++;
         }
         System.out.println(texto);
@@ -175,7 +157,7 @@ public class BuscadorSecuencial {
         if (urls != null) {
             for (int i = 0; i < urls.length; i++) {
                 String contenido = busqueda.leerPagina(urls[i]);
-                int coincidencias = busqueda.buscarCoincidencia("CIF", contenido);
+                int coincidencias = busqueda.buscarCoincidencia("Cif", contenido);
                 System.out.println("Coincidencias en " + urls[i] + " : " + coincidencias);
             }
         }
