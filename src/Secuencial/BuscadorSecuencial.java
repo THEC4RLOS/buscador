@@ -18,6 +18,8 @@ import org.jsoup.nodes.Document;
  */
 public class BuscadorSecuencial {
 
+    Resultado[] resultados;
+
     /**
      * Función para leer el contenido de una página
      *
@@ -55,7 +57,6 @@ public class BuscadorSecuencial {
         return Character.toUpperCase(palabra.charAt(0)) + palabra.substring(1);
     }
 
- 
     /**
      * Función para buscar las coincidencias de una palabra en el contenido de
      * la página
@@ -64,37 +65,38 @@ public class BuscadorSecuencial {
      * @param contenido el texto de la página en el que se buscan coincidencias
      * @return la cantidad de coincidencias encontradas
      */
-    public int buscarCoincidencia(String palabra, String contenido) {
+    public Resultado buscarCoincidencia(String palabra, String contenido, String url) {
         int coincidencias = 0;
         String texto = null;
-       //System.out.println(contenido);
-        
-        palabra =  palabra.toLowerCase();
+        //System.out.println(contenido);
+
+        palabra = palabra.toLowerCase();
         String contenidoAux = contenido.toLowerCase();
-        
+
         while (contenidoAux.contains(palabra)) {
             //System.out.println(contenido.substring(contenido.indexOf(palabra),contenido.indexOf(palabra)+palabra.length()));
             if (texto == null) {
                 if (contenidoAux.indexOf(palabra) - 40 >= 0 && contenidoAux.indexOf(palabra) + palabra.length() + 40 < contenidoAux.length()) {
 
                     texto = "..." + contenido.substring(contenidoAux.indexOf(palabra) - 40, contenidoAux.indexOf(palabra) + palabra.length() + 40) + "...";
-                    
+
                 } else if (contenidoAux.indexOf(palabra) - 40 >= 0 && contenidoAux.indexOf(palabra) + palabra.length() + 40 >= contenidoAux.length()) {
-                    
+
                     texto = "..." + contenido.substring(contenidoAux.indexOf(palabra) - 40, contenidoAux.indexOf(palabra) + palabra.length());
-                    
+
                 } else if (contenidoAux.indexOf(palabra) - 40 <= 0 && contenidoAux.indexOf(palabra) + palabra.length() + 40 <= contenidoAux.length()) {
 //                    System.out.println("Aqui");
                     texto = contenido.substring(contenidoAux.indexOf(palabra), contenidoAux.indexOf(palabra) + palabra.length() + 40) + "...";
-                    
-                } 
+
+                }
             }
             contenido = contenido.substring(contenidoAux.indexOf(palabra) + palabra.length(), contenidoAux.length());
             contenidoAux = contenidoAux.substring(contenidoAux.indexOf(palabra) + palabra.length(), contenidoAux.length());
             coincidencias++;
         }
-        System.out.println(texto);
-        return coincidencias;
+
+        Resultado resultado = new Resultado(coincidencias, url, texto);
+        return resultado;
     }
 
     /**
@@ -151,15 +153,31 @@ public class BuscadorSecuencial {
         return null;
     }
 
-    public static void main(String[] args) {
-        BuscadorSecuencial busqueda = new BuscadorSecuencial();
-        String[] urls = busqueda.leerURLs("//home//manfred//NetBeansProjects//TaskforceProjects//Buscador//trunk//src//Secuencial//urls.txt");
+    public Resultado[] buscar(String palabra) {
+        String[] urls = leerURLs("//home//manfred//NetBeansProjects//TaskforceProjects//Buscador//trunk//src//Secuencial//urls.txt");
+        this.resultados = new Resultado[urls.length];
         if (urls != null) {
             for (int i = 0; i < urls.length; i++) {
-                String contenido = busqueda.leerPagina(urls[i]);
-                int coincidencias = busqueda.buscarCoincidencia("Cif", contenido);
-                System.out.println("Coincidencias en " + urls[i] + " : " + coincidencias);
+                String contenido = leerPagina(urls[i]);
+                Resultado resultado = buscarCoincidencia(palabra, contenido, urls[i]);
+                
+                //si es el primero
+                if (i == 0) {
+                    this.resultados[i] = resultado;
+                }
+                else{
+                    if(this.resultados[i-1] > )
+                }
             }
+        }
+        return this.resultados;
+    }
+
+    public static void main(String[] args) {
+        BuscadorSecuencial buscador = new BuscadorSecuencial();
+        buscador.buscar("trabajo");
+        for (int i = 0; i < buscador.resultados.length; i++) {
+            System.out.println(buscador.resultados[i].descripcion());
         }
     }
 }
