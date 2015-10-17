@@ -1,5 +1,6 @@
 package Paralelo;
 
+import Secuencial.Resultado;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.RecursiveTask;
@@ -63,6 +64,48 @@ public class Texto extends RecursiveTask<Integer> {
         subtasks.add(subtask2);
 
         return subtasks;
+    }
+    
+    /**
+     * Función para buscar las coincidencias de una palabra en el contenido de
+     * la página
+     *
+     * @param palabra la palabra a buscar en el contenido
+     * @param contenido el texto de la página en el que se buscan coincidencias
+     * @return la cantidad de coincidencias encontradas
+     */
+    public Resultado buscarCoincidencia(String palabra, String contenido) {
+        int coincidencias = 0;
+        String extracto = null;
+        //System.out.println(contenido);
+
+        palabra = palabra.toLowerCase();
+        String contenidoAux = contenido.toLowerCase();
+
+        while (contenidoAux.contains(palabra)) {
+            //System.out.println(contenido.substring(contenido.indexOf(palabra),contenido.indexOf(palabra)+palabra.length()));
+            if (extracto == null) {
+                if (contenidoAux.indexOf(palabra) - 40 >= 0 && contenidoAux.indexOf(palabra) + palabra.length() + 40 < contenidoAux.length()) {
+
+                    extracto = "..." + contenido.substring(contenidoAux.indexOf(palabra) - 40, contenidoAux.indexOf(palabra) + palabra.length() + 40) + "...";
+
+                } else if (contenidoAux.indexOf(palabra) - 40 >= 0 && contenidoAux.indexOf(palabra) + palabra.length() + 40 >= contenidoAux.length()) {
+
+                    extracto = "..." + contenido.substring(contenidoAux.indexOf(palabra) - 40, contenidoAux.indexOf(palabra) + palabra.length());
+
+                } else if (contenidoAux.indexOf(palabra) - 40 <= 0 && contenidoAux.indexOf(palabra) + palabra.length() + 40 <= contenidoAux.length()) {
+//                    System.out.println("Aqui");
+                    extracto = contenido.substring(contenidoAux.indexOf(palabra), contenidoAux.indexOf(palabra) + palabra.length() + 40) + "...";
+
+                }
+            }
+            contenido = contenido.substring(contenidoAux.indexOf(palabra) + palabra.length(), contenidoAux.length());
+            contenidoAux = contenidoAux.substring(contenidoAux.indexOf(palabra) + palabra.length(), contenidoAux.length());
+            coincidencias++;
+        }
+        String url = "", titulo = "";
+        Resultado resultado = new Resultado(coincidencias, url, extracto, titulo);
+        return resultado;
     }
     
 }

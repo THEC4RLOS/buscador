@@ -63,6 +63,7 @@ public class BuscadorSecuencial {
      *
      * @param palabra la palabra a buscar en el contenido
      * @param contenido el texto de la página en el que se buscan coincidencias
+     * @param url
      * @return la cantidad de coincidencias encontradas
      */
     public Resultado buscarCoincidencia(String palabra, String contenido, String url) {
