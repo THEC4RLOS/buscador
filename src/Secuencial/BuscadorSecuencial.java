@@ -20,6 +20,7 @@ import org.apache.commons.lang.ArrayUtils;
 public class BuscadorSecuencial {
 
     Resultado[] resultados;
+    int tiempo;
 
     /**
      * Función para leer el contenido de una página
@@ -70,8 +71,6 @@ public class BuscadorSecuencial {
     public Resultado buscarCoincidencia(String palabra, String contenido, String url) {
         int coincidencias = 0;
         String texto = null;
-        //System.out.println(contenido);
-
         palabra = palabra.toLowerCase();
         String contenidoAux = contenido.toLowerCase();
 
@@ -163,17 +162,18 @@ public class BuscadorSecuencial {
                 //System.out.println(i);
                 //System.out.println("@"+resultados.length);
                 String contenido = leerPagina(urls[i]);
-                Resultado resultado = buscarCoincidencia(palabra, contenido, urls[i]);                
-                //si es el primer                
+                Resultado resultado = buscarCoincidencia(palabra, contenido, urls[i]);
+
+                //si es el primer                                
                 if (i == 0) {
-                    this.resultados[i] = resultado;                 
+                    this.resultados[i] = resultado;
                 } else {
                     //aqui vamos a insertar el resultado llamando a la funcion ordenada
-                    int posicion = this.encontrarIndice(resultados, i, resultado);                    
+                    int posicion = this.encontrarIndice(resultados, i, resultado);
                     this.resultados = this.insertarOrdenado(resultados, i, posicion, resultado);
                 }
             }
-        }        
+        }
         return this.resultados;
     }
 
@@ -191,30 +191,27 @@ public class BuscadorSecuencial {
         int i = 0;
         while (i < largoActual && arrayResultados[i].getCoincidencias() < resultado.getCoincidencias()) {
             i++;
-        }        
+        }
         return i;
     }
 
     /**
-     * 
+     *
      * @param arrayResultados
      * @param tPosiciones
      * @param indice
      * @param resultado
-     * @return 
+     * @return
      */
     public Resultado[] insertarOrdenado(Resultado[] arrayResultados, int tPosiciones, int indice, Resultado resultado) {
-        tPosiciones --;
+        tPosiciones--;
         if (tPosiciones == arrayResultados.length) {
             System.out.println("Error, el arreglo ya está lleno");
             return arrayResultados;
         } else {
-            System.out.println("indice: "+indice);
-            System.out.println("Posiciones: "+tPosiciones);
+
             for (int j = tPosiciones; j >= indice; j--) {
-                
-                arrayResultados[j + 1] = arrayResultados[j];                                
-                
+                arrayResultados[j + 1] = arrayResultados[j];
             }
             arrayResultados[indice] = resultado;
             return arrayResultados;
@@ -223,11 +220,14 @@ public class BuscadorSecuencial {
 
     public static void main(String[] args) {
         BuscadorSecuencial buscador = new BuscadorSecuencial();
+
         buscador.buscar("vida");
         System.out.println("largo: " + buscador.resultados.length);
         for (int i = 0; i < buscador.resultados.length; i++) {
-            System.out.println(buscador.resultados[i].descripcion());
-            System.out.println(i);
+            if (buscador.resultados[i].getCoincidencias() > 0) {
+                System.out.println(buscador.resultados[i].descripcion());
+                System.out.println("----------------------------------------------------------------");
+            }
         }
     }
 }
