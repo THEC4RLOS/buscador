@@ -11,6 +11,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.apache.commons.lang.ArrayUtils;
 
 /**
  *
@@ -96,7 +97,7 @@ public class BuscadorSecuencial {
             coincidencias++;
         }
 
-        Resultado resultado = new Resultado(coincidencias, url, texto);
+        Resultado resultado = new Resultado(coincidencias, url, texto,"");
         return resultado;
     }
 
@@ -158,27 +159,42 @@ public class BuscadorSecuencial {
         String[] urls = leerURLs("//home//manfred//NetBeansProjects//TaskforceProjects//Buscador//trunk//src//Secuencial//urls.txt");
         this.resultados = new Resultado[urls.length];
         if (urls != null) {
-            for (int i = 0; i < urls.length; i++) {
+            for (int i = 0; i < resultados.length; i++) {
+                //System.out.println(i);
+                //System.out.println("@"+resultados.length);
                 String contenido = leerPagina(urls[i]);
                 Resultado resultado = buscarCoincidencia(palabra, contenido, urls[i]);
-                
+
                 //si es el primero
                 if (i == 0) {
-                    this.resultados[i] = resultado;
-                }
-                else{
-                    //if(this.resultados[i-1] > )
+                    resultados[i] = resultado;
+                } else {
+                    for (int j = 0; j < i; j++) {
+                        if (resultados[j].getCoincidencias() <= resultado.getCoincidencias() && j == (i-1)) {
+                            resultados[i]=resultado;
+                        }
+                        else if (resultados[j].getCoincidencias() > resultado.getCoincidencias()) {
+                            Resultado[] resultadosAux = new Resultado[1];
+                            resultadosAux[0] = resultado;
+                            resultados = (Resultado[]) ArrayUtils.addAll(resultadosAux, resultados);
+                        }
+                        
+                    }
                 }
             }
         }
+        System.out.println("largo: " + resultados.length);
+        System.out.println(resultados[2].descripcion());
         return this.resultados;
     }
 
     public static void main(String[] args) {
         BuscadorSecuencial buscador = new BuscadorSecuencial();
         buscador.buscar("trabajo");
-        for (int i = 0; i < buscador.resultados.length; i++) {
-            System.out.println(buscador.resultados[i].descripcion());
-        }
+        //System.out.println("largo: "+ buscador.resultados.length);
+        //for (int i = 0; i < buscador.resultados.length; i++) {            
+        //System.out.println(buscador.resultados[i].descripcion());
+        //  System.out.println(i);
+        //}
     }
 }
