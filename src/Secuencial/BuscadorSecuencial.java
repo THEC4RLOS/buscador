@@ -83,7 +83,7 @@ public class BuscadorSecuencial {
         }
         Document doc = Jsoup.connect(url).get();
         String titulo = doc.title();
-        Resultado resultado = new Resultado(coincidencias, url, texto, titulo);
+        Resultado resultado = new Resultado(coincidencias, url, texto, titulo,"");
         return resultado;
     }
 

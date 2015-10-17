@@ -28,5 +28,9 @@ public class PaginasWeb {
     public void setListaResultados(ArrayList<Resultado> listaResultados) {
         this.listaResultados = listaResultados;
     }
+    
+    public void addItemListaResultados (Resultado item){
+        this.listaResultados.add(item);
+    }
 
 }

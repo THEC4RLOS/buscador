@@ -19,7 +19,7 @@ public class Buscador {
     public Buscador(ArrayList<PaginasWeb> paginasWeb) {
         this.paginasWeb = paginasWeb;
     }
-
+    /*
     public void addItemPaginasWeb(Resultado resultado) {
         if (existeSitioWeb(resultado.getUrl()))
             updateItem(resultado);
@@ -49,7 +49,7 @@ public class Buscador {
             }
         }
     }
-    
+    */
     public static void main(String[] args) {
         
         ArrayList<String> pw = new ArrayList<>();
@@ -65,14 +65,22 @@ public class Buscador {
             e.getMessage();
             System.out.println(e.getMessage());
         }*/
-        pw.add("http://www.wsj.com/"); // 3 7 8
+        pw.add("http://www.wsj.com/");
         String p = "Wall";
         Palabra myRecursiveTask = new Palabra(pw,p);
         int cores = Runtime.getRuntime().availableProcessors();
         ForkJoinPool forkJoinPool = new ForkJoinPool(cores);
-        int mergedResult = forkJoinPool.invoke(myRecursiveTask);
-
-        System.out.println("mergedResult = " + mergedResult);
+        ArrayList<PaginasWeb> mergedResult = forkJoinPool.invoke(myRecursiveTask);
+        
+        for (PaginasWeb paw: mergedResult){
+            System.out.println(paw.getUrl());
+            for (Resultado pawq: paw.getListaResultados()){
+                System.out.println(pawq.getPalabra() + " " +pawq.getCoincidencias() 
+                        + " " + pawq.getTextoCoincidencia() + " " 
+                        + pawq.getUrl() + " " + pawq.getTitulo());
+            }
+        }
+        //System.out.println("mergedResult = " + mergedResult);
     }
 }
 /*
@@ -139,11 +147,6 @@ public static void main(String[] args) throws Exception {
         }
         System.out.println(contador);
     }
-
-
-
-
-
 
 
 

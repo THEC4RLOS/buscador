@@ -10,20 +10,22 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 // Busca  una palabra en cada pagina
-public class Pagina extends RecursiveTask<Integer> {
+public class Pagina extends RecursiveTask<ArrayList<Resultado>> {
 
     private ArrayList<String> paginasWeb = null;
     private ArrayList<String> linkPagina = null;
     private String palabra = "";
+    private ArrayList<Resultado> resultado = null;
 
     public Pagina(ArrayList<String> paginasWeb, ArrayList<String> linkPagina, String palabra) {
         this.paginasWeb = paginasWeb;
         this.linkPagina = linkPagina;
         this.palabra = palabra;
+        this.resultado = new ArrayList<>();
     }
 
     @Override
-    protected Integer compute() {
+    protected ArrayList<Resultado> compute() {
 
         //if work is above threshold, break tasks up into smaller tasks
         if (this.linkPagina.size() != 1) {
@@ -35,28 +37,35 @@ public class Pagina extends RecursiveTask<Integer> {
                 subtask.fork();
             }
 
-            int result = 0;
+            //int result = 0;
+            Resultado result;
             for (Pagina subtask : subtasks) {
-                result += subtask.join();
+                result = subtask.join().get(0);
+                this.resultado.add(result);
             }
-            return result;
+            //System.out.println("muchos Pagina Numero "+resultado.size());
+            return this.resultado;
 
         } else {
-            Resultado mergedResult = null;
+            ArrayList<Resultado> mergedResult = new ArrayList<>();
+            Resultado result;
+            
             try {
                 Document doc = Jsoup.connect(this.linkPagina.get(0)).get();
                 String titulo = doc.title();
                 
-                Texto tareaTexto = new Texto(0, doc.text(), doc.text(), this.palabra);
+                Texto tareaTexto = new Texto(0, doc.body().text(), doc.body().text(), this.palabra);
                 int cores = Runtime.getRuntime().availableProcessors();
                 ForkJoinPool forkJoinPool = new ForkJoinPool(cores);
-                mergedResult = forkJoinPool.invoke(tareaTexto);
-                mergedResult.setTitulo(titulo);
-                mergedResult.setUrl(this.linkPagina.get(0));
-                System.out.println(titulo + " "+ this.palabra + " " +mergedResult);
+                result = forkJoinPool.invoke(tareaTexto);
+                result.setTitulo(titulo);
+                result.setUrl(this.linkPagina.get(0));
+                //System.out.println(titulo + " "+ this.palabra + " " +mergedResult);
+                mergedResult.add(result);
                 
             } catch (IOException e) {
             }
+            //System.out.println("uno Pagina Numero "+mergedResult.size());
             return mergedResult;
         }
     }

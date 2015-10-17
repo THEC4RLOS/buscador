@@ -34,13 +34,16 @@ public class Texto extends RecursiveTask<Resultado> {
             for(Texto subtask : subtasks){
                 subtask.fork();
             }
-            Resultado result = new Resultado(0, "", this.extracto, "");
+            Resultado result = new Resultado(0, "", this.extracto, "", this.palabra);
             Resultado resultAux;
             //int result = 0;
             for(Texto subtask : subtasks) {
                 //result += subtask.join();
                 resultAux = subtask.join();
                 result.setCoincidencias(result.getCoincidencias() + resultAux.getCoincidencias());
+                if (result.getTextoCoincidencia() == null){
+                    result.setTextoCoincidencia(resultAux.getTextoCoincidencia());
+                }
                 
             }
             return result;
@@ -90,18 +93,18 @@ public class Texto extends RecursiveTask<Resultado> {
 
         while (contenidoAux.contains(palabra)) {
             //System.out.println(contenido.substring(contenido.indexOf(palabra),contenido.indexOf(palabra)+palabra.length()));
-            if (extracto == null) {
+            if (this.extracto == null) {
                 if (contenidoAux.indexOf(palabra) - 40 >= 0 && contenidoAux.indexOf(palabra) + palabra.length() + 40 < contenidoAux.length()) {
 
-                    extracto = "..." + contenido.substring(contenidoAux.indexOf(palabra) - 40, contenidoAux.indexOf(palabra) + palabra.length() + 40) + "...";
+                    this.extracto = "..." + contenido.substring(contenidoAux.indexOf(palabra) - 40, contenidoAux.indexOf(palabra) + palabra.length() + 40) + "...";
 
                 } else if (contenidoAux.indexOf(palabra) - 40 >= 0 && contenidoAux.indexOf(palabra) + palabra.length() + 40 >= contenidoAux.length()) {
 
-                    extracto = "..." + contenido.substring(contenidoAux.indexOf(palabra) - 40, contenidoAux.indexOf(palabra) + palabra.length());
+                    this.extracto = "..." + contenido.substring(contenidoAux.indexOf(palabra) - 40, contenidoAux.indexOf(palabra) + palabra.length());
 
                 } else if (contenidoAux.indexOf(palabra) - 40 <= 0 && contenidoAux.indexOf(palabra) + palabra.length() + 40 <= contenidoAux.length()) {
 //                    System.out.println("Aqui");
-                    extracto = contenido.substring(contenidoAux.indexOf(palabra), contenidoAux.indexOf(palabra) + palabra.length() + 40) + "...";
+                    this.extracto = contenido.substring(contenidoAux.indexOf(palabra), contenidoAux.indexOf(palabra) + palabra.length() + 40) + "...";
 
                 }
             }
@@ -110,7 +113,9 @@ public class Texto extends RecursiveTask<Resultado> {
             coincidencias++;
         }
         String url = "", titulo = "";
-        Resultado resultado = new Resultado(coincidencias, url, extracto, titulo);
+        
+        Resultado resultado = new Resultado(coincidencias, url, this.extracto, titulo, this.palabra);
+        System.out.println(this.extracto);
         return resultado;
     }
     

@@ -6,12 +6,14 @@ public class Resultado {
     private String url;
     private String textoCoincidencia;
     private String Titulo;
+    private String palabra;
     
-    public Resultado(int coincidencias, String url, String textoCoincidencia, String titulo) {
+    public Resultado(int coincidencias, String url, String textoCoincidencia, String titulo, String palabra) {
         this.coincidencias = coincidencias;
         this.url = url;
         this.textoCoincidencia = textoCoincidencia;
         this.Titulo = titulo;
+        this.palabra = palabra;
     }
     
     public String descripcion(){
@@ -35,6 +37,10 @@ public class Resultado {
         return Titulo;
     }
 
+    public String getPalabra() {
+        return palabra;
+    }
+
     public void setCoincidencias(int coincidencias) {
         this.coincidencias = coincidencias;
     }
@@ -50,6 +56,9 @@ public class Resultado {
     public void setTitulo(String Titulo) {
         this.Titulo = Titulo;
     }
-    
+
+    public void setPalabra(String palabra) {
+        this.palabra = palabra;
+    }
     
 }
