@@ -97,7 +97,7 @@ public class BuscadorSecuencial {
             coincidencias++;
         }
 
-        Resultado resultado = new Resultado(coincidencias, url, texto,"");
+        Resultado resultado = new Resultado(coincidencias, url, texto, "");
         return resultado;
     }
 
@@ -163,38 +163,63 @@ public class BuscadorSecuencial {
                 //System.out.println(i);
                 //System.out.println("@"+resultados.length);
                 String contenido = leerPagina(urls[i]);
-                Resultado resultado = buscarCoincidencia(palabra, contenido, urls[i]);
-
-                //si es el primero
+                Resultado resultado = buscarCoincidencia(palabra, contenido, urls[i]);                
+                //si es el primer                
                 if (i == 0) {
-                    resultados[i] = resultado;
+                    this.resultados[i] = resultado;                 
                 } else {
-                    for (int j = 0; j < i; j++) {
-                        if (resultados[j].getCoincidencias() <= resultado.getCoincidencias() && j == (i-1)) {
-                            resultados[i]=resultado;
-                        }
-                        else if (resultados[j].getCoincidencias() > resultado.getCoincidencias()) {
-                            Resultado[] resultadosAux = new Resultado[1];
-                            resultadosAux[0] = resultado;
-                            resultados = (Resultado[]) ArrayUtils.addAll(resultadosAux, resultados);
-                        }
-                        
-                    }
+                    //aqui vamos a insertar el resultado llamando a la funcion ordenada
+                    int posicion = this.encontrarIndice(resultados, i, resultado);                    
+                    this.resultados = this.insertarOrdenado(resultados, i, posicion, resultado);
                 }
             }
-        }
-        System.out.println("largo: " + resultados.length);
-        System.out.println(resultados[2].descripcion());
+        }        
         return this.resultados;
+    }
+
+    /**
+     * Funcion auxiliar para insertar ordenado devuelve el indice en el que se
+     * debe insertar el nuevo resultado
+     *
+     * @param arrayResultados arreglo a ordenar
+     * @param largoActual largo actual del arreglo, para efectos del proyecto,
+     * el largo actal equivale al valor de "i" de la funcion donde es llamado
+     * @param resultado el nodo a insertar
+     * @return el indice en el que se debe insertar ese dato
+     */
+    public int encontrarIndice(Resultado[] arrayResultados, int largoActual, Resultado resultado) {
+        int i = 0;
+        while (i < largoActual && arrayResultados[i].getCoincidencias() < resultado.getCoincidencias()) {
+            i++;
+        }        
+        return i;
+    }
+
+    public Resultado[] insertarOrdenado(Resultado[] arrayResultados, int tPosiciones, int indice, Resultado resultado) {
+        tPosiciones --;
+        if (tPosiciones == arrayResultados.length) {
+            System.out.println("Error, el arreglo ya está lleno");
+            return arrayResultados;
+        } else {
+            System.out.println("indice: "+indice);
+            System.out.println("Posiciones: "+tPosiciones);
+            for (int j = tPosiciones; j >= indice; j--) {
+                
+                arrayResultados[j + 1] = arrayResultados[j];                                
+                
+            }
+            arrayResultados[indice] = resultado;
+            return arrayResultados;
+        }
     }
 
     public static void main(String[] args) {
         BuscadorSecuencial buscador = new BuscadorSecuencial();
         buscador.buscar("trabajo");
-        //System.out.println("largo: "+ buscador.resultados.length);
-        //for (int i = 0; i < buscador.resultados.length; i++) {            
-        //System.out.println(buscador.resultados[i].descripcion());
-        //  System.out.println(i);
-        //}
+        System.out.println("largo: " + buscador.resultados.length);
+        for (int i = 0; i < buscador.resultados.length; i++) {
+            System.out.println(buscador.resultados[i].descripcion());
+            System.out.println(i);
+        }
     }
 }
