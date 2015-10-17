@@ -1,5 +1,6 @@
 package Paralelo;
 
+import Secuencial.Resultado;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +42,7 @@ public class Pagina extends RecursiveTask<Integer> {
             return result;
 
         } else {
-            int mergedResult = 0;
+            Resultado mergedResult = null;
             try {
                 Document doc = Jsoup.connect(this.linkPagina.get(0)).get();
                 String titulo = doc.title();
@@ -50,6 +51,8 @@ public class Pagina extends RecursiveTask<Integer> {
                 int cores = Runtime.getRuntime().availableProcessors();
                 ForkJoinPool forkJoinPool = new ForkJoinPool(cores);
                 mergedResult = forkJoinPool.invoke(tareaTexto);
+                mergedResult.setTitulo(titulo);
+                mergedResult.setUrl(this.linkPagina.get(0));
                 System.out.println(titulo + " "+ this.palabra + " " +mergedResult);
                 
             } catch (IOException e) {

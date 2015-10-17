@@ -6,12 +6,13 @@ import java.util.List;
 import java.util.concurrent.RecursiveTask;
     
 // Busqueda realizada en un texto de las apaciones de una palabra
-public class Texto extends RecursiveTask<Integer> {
+public class Texto extends RecursiveTask<Resultado> {
 
     private int vecesEncontrada = 0;
     private String texto = "";
     private String textoAux = "";
     private String palabra = "";
+    private String extracto = null;
 
     
     public Texto(int vecesEncontrada, String texto, String textoAux, String palabra) {
@@ -22,7 +23,7 @@ public class Texto extends RecursiveTask<Integer> {
     }
 
     @Override
-    protected Integer compute() {
+    protected Resultado compute() {
 
         //if work is above threshold, break tasks up into smaller tasks
         if(this.textoAux.length() > this.texto.length()/50) {
@@ -33,21 +34,26 @@ public class Texto extends RecursiveTask<Integer> {
             for(Texto subtask : subtasks){
                 subtask.fork();
             }
-
-            int result = 0;
+            Resultado result = new Resultado(0, "", this.extracto, "");
+            Resultado resultAux;
+            //int result = 0;
             for(Texto subtask : subtasks) {
-                result += subtask.join();
+                //result += subtask.join();
+                resultAux = subtask.join();
+                result.setCoincidencias(result.getCoincidencias() + resultAux.getCoincidencias());
+                
             }
             return result;
 
         } else {
-            
+            /*
             int contador=0;
             while (textoAux.contains(palabra)) {
                 textoAux = textoAux.substring(textoAux.indexOf(palabra)+palabra.length(),textoAux.length());
                 contador++; 
             }
-            return contador;
+            return contador;*/
+            return buscarCoincidencia(palabra, textoAux);
         }
     }
 
@@ -76,7 +82,7 @@ public class Texto extends RecursiveTask<Integer> {
      */
     public Resultado buscarCoincidencia(String palabra, String contenido) {
         int coincidencias = 0;
-        String extracto = null;
+        //String extracto = null;
         //System.out.println(contenido);
 
         palabra = palabra.toLowerCase();
