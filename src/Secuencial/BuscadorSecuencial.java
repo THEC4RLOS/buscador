@@ -195,6 +195,14 @@ public class BuscadorSecuencial {
         return i;
     }
 
+    /**
+     * 
+     * @param arrayResultados
+     * @param tPosiciones
+     * @param indice
+     * @param resultado
+     * @return 
+     */
     public Resultado[] insertarOrdenado(Resultado[] arrayResultados, int tPosiciones, int indice, Resultado resultado) {
         tPosiciones --;
         if (tPosiciones == arrayResultados.length) {
@@ -215,7 +223,7 @@ public class BuscadorSecuencial {
 
     public static void main(String[] args) {
         BuscadorSecuencial buscador = new BuscadorSecuencial();
-        buscador.buscar("trabajo");
+        buscador.buscar("vida");
         System.out.println("largo: " + buscador.resultados.length);
         for (int i = 0; i < buscador.resultados.length; i++) {
             System.out.println(buscador.resultados[i].descripcion());
