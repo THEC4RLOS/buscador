@@ -86,13 +86,32 @@ public class BuscadorSecuencial {
      * @return la cantidad de coincidencias encontradas
      */
     public int buscarCoincidencia(String palabra, String contenido) {
-        palabra = palabra.toLowerCase();//para no fallar si existen coincidencias con mayúsculas o minusculas
         int coincidencias = 0;
-
+        palabra = palabra.toLowerCase();
+        String texto = null;
+        String contenidoAux =  contenido.toLowerCase();
+//        System.out.println(contenido);
         while (contenido.contains(palabra)) {
+            //System.out.println(contenido.substring(contenido.indexOf(palabra),contenido.indexOf(palabra)+palabra.length()));
+            if (texto == null) {
+                if (contenido.indexOf(palabra) - 40 >= 0 && contenido.indexOf(palabra) + palabra.length() + 40 < contenido.length()) {
+
+                    texto = "..." + contenido.substring(contenido.indexOf(palabra) - 40, contenido.indexOf(palabra) + palabra.length() + 40) + "...";
+                    
+                } else if (contenido.indexOf(palabra) - 40 >= 0 && contenido.indexOf(palabra) + palabra.length() + 40 >= contenido.length()) {
+                    
+                    texto = "..." + contenido.substring(contenido.indexOf(palabra) - 40, contenido.indexOf(palabra) + palabra.length());
+                } else if (contenido.indexOf(palabra) - 40 <= 0 && contenido.indexOf(palabra) + palabra.length() + 40 <= contenido.length()) {
+//                    System.out.println("Aqui");
+                    texto = contenido.substring(contenido.indexOf(palabra), contenido.indexOf(palabra) + palabra.length() + 40) + "...";
+                } else if (contenido.indexOf(palabra) - 40 >= 0 && contenido.indexOf(palabra) + palabra.length() + 40 <= contenido.length()) {
+                    texto = "..." + contenido.substring(contenido.indexOf(palabra) - 1, contenido.indexOf(palabra) - 1);
+                }
+            }
             contenido = contenido.substring(contenido.indexOf(palabra) + palabra.length(), contenido.length());
             coincidencias++;
-        }        
+        }
+        System.out.println(texto);
         return coincidencias;
     }
 
@@ -156,7 +175,7 @@ public class BuscadorSecuencial {
         if (urls != null) {
             for (int i = 0; i < urls.length; i++) {
                 String contenido = busqueda.leerPagina(urls[i]);
-                int coincidencias = busqueda.buscarCoincidencia("budismo", contenido);
+                int coincidencias = busqueda.buscarCoincidencia("CIF", contenido);
                 System.out.println("Coincidencias en " + urls[i] + " : " + coincidencias);
             }
         }
