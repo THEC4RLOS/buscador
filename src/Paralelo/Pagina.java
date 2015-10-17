@@ -44,11 +44,13 @@ public class Pagina extends RecursiveTask<Integer> {
             int mergedResult = 0;
             try {
                 Document doc = Jsoup.connect(this.linkPagina.get(0)).get();
+                String titulo = doc.title();
                 
                 Texto tareaTexto = new Texto(0, doc.text(), doc.text(), this.palabra);
                 int cores = Runtime.getRuntime().availableProcessors();
                 ForkJoinPool forkJoinPool = new ForkJoinPool(cores);
                 mergedResult = forkJoinPool.invoke(tareaTexto);
+                System.out.println(titulo + " "+ this.palabra + " " +mergedResult);
                 
             } catch (IOException e) {
             }

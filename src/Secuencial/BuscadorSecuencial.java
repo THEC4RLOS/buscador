@@ -166,7 +166,7 @@ public class BuscadorSecuencial {
                     this.resultados[i] = resultado;
                 }
                 else{
-                    if(this.resultados[i-1] > )
+                    //if(this.resultados[i-1] > )
                 }
             }
         }

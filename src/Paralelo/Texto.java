@@ -25,7 +25,6 @@ public class Texto extends RecursiveTask<Integer> {
 
         //if work is above threshold, break tasks up into smaller tasks
         if(this.textoAux.length() > this.texto.length()/50) {
-            //System.out.println("Splitting workLoad : " + this.workLoad);
 
             List<Texto> subtasks = new ArrayList<>();
             subtasks.addAll(createSubtasks());

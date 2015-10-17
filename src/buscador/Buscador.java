@@ -2,6 +2,10 @@
 package buscador;
 
 import Paralelo.Palabra;
+import java.awt.Desktop;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.concurrent.ForkJoinPool;
 
@@ -14,10 +18,19 @@ public class Buscador {
         
         ArrayList<String> pw = new ArrayList<>();
         //pw.add("http://elpais.com/elpais/portada_america.html");//2
-        pw.add("http://edition.cnn.com/");// 0 5
-        pw.add("http://www.20minutos.es/");// 0 0
+        //pw.add("http://edition.cnn.com/");// 0 5
+        //pw.add("http://www.20minutos.es/");// 0 0
+        /*String enlaceAAceder = "http://www.example.com";
+        Desktop enlace=Desktop.getDesktop();
+        try {
+                enlace.browse(new URI(enlaceAAceder));
+                System.out.println("abrio");
+        } catch (IOException | URISyntaxException e) {
+            e.getMessage();
+            System.out.println(e.getMessage());
+        }*/
         pw.add("http://www.wsj.com/"); // 3 7 8
-        String p = "Obama | with | Wall";
+        String p = "Wall";
         Palabra myRecursiveTask = new Palabra(pw,p);
         int cores = Runtime.getRuntime().availableProcessors();
         ForkJoinPool forkJoinPool = new ForkJoinPool(cores);

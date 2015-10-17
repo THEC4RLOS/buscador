@@ -21,7 +21,6 @@ public class Palabra extends RecursiveTask<Integer> {
 
         //if work is above threshold, break tasks up into smaller tasks
         if (this.palabra.contains("|")) {
-            System.out.println("Palabra con |: >" + this.palabra + "<");
             List<Palabra> subtasks = new ArrayList<>();
             subtasks.addAll(createSubtasks());
 
@@ -36,11 +35,7 @@ public class Palabra extends RecursiveTask<Integer> {
             return result;
 
         } else {
-            System.out.println("Palabra sin |: >" + this.palabra + "<");
-            System.out.println("paginas");
-            for(String link: this.paginasWeb){
-                System.out.println(link);
-            }
+            
             int mergedResult;
             ArrayList<String> paginasWebAux = new ArrayList<>(this.paginasWeb);
             Pagina tareaPagina = new Pagina(paginasWebAux, paginasWebAux, this.palabra);
