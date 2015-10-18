@@ -50,7 +50,7 @@ public class BrowserUI extends javax.swing.JFrame {
     }
     
     /**
-    * Agrega un objeto de tipo resultado al objeto Paginzas Web correcto 
+    * Agrega un objeto de tipo resultado al objeto Paginas Web correcto 
     * @param resultado
     */
     public void addResultado(ArrayList<Resultado> resultado){

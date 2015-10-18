@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.ArrayList;
 
 public class Archivo {
-
+    public String direccionArchivo = "/home/carlos/Escritorio/urlWebPages.txt";
     public ArrayList<String> leer() {
         File archivo;
         FileReader fr = null;
@@ -14,7 +14,7 @@ public class Archivo {
             // Apertura del fichero y creacion de BufferedReader para poder
             // hacer una lectura comoda (disponer del metodo readLine())./home/carlos/Escritorio/
             //archivo = new File("C:\\urlWebPages.txt");
-            archivo = new File("/home/carlos/Escritorio/urlWebPages.txt");
+            archivo = new File(direccionArchivo);
             
             fr = new FileReader(archivo);
             br = new BufferedReader(fr);
@@ -46,7 +46,7 @@ public class Archivo {
         PrintWriter pw;
         try {
             //fichero = new FileWriter("c://urlWebPages.txt");
-            fichero = new FileWriter("/home/carlos/Escritorio/urlWebPages.txt");
+            fichero = new FileWriter(direccionArchivo);
             
             pw = new PrintWriter(fichero);
 

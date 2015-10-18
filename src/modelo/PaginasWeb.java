@@ -7,10 +7,11 @@ public class PaginasWeb {
 
     private String url;
     private ArrayList<Resultado> listaResultados;
-
+    private int incidencias = 0;
+    
     public PaginasWeb(String url, ArrayList<Resultado> listaResultados) {
         this.url = url;
-        this.listaResultados = listaResultados;
+        this.listaResultados = listaResultados;        
     }
 
     public String getUrl() {
@@ -31,6 +32,20 @@ public class PaginasWeb {
     
     public void addItemListaResultados (Resultado item){
         this.listaResultados.add(item);
+    }
+
+    /**
+     * @return the incidencias
+     */
+    public int getIncidencias() {
+        return incidencias;
+    }
+
+    /**
+     * @param incidencias the incidencias to set
+     */
+    public void setIncidencias(int incidencias) {
+        this.incidencias = incidencias;
     }
 
 }

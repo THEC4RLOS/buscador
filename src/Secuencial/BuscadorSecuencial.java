@@ -25,7 +25,7 @@ import modelo.PaginasWeb;
  * @author manfred
  */
 public class BuscadorSecuencial {    
-    public ArrayList<Resultado> resultados = new ArrayList();//resultados de las busquedas
+    public ArrayList<Resultado> resultados = new ArrayList();//resultados de las busquedas    
     public long tiempo;// tiempo total de la busqueda
 
     /**
@@ -194,7 +194,7 @@ public class BuscadorSecuencial {
             this.buscar(palabra);
         }
         long estimatedTime = System.currentTimeMillis() - startTime;// finaliza el tiempo de busqueda de los terminos
-        this.tiempo = estimatedTime / 1000; // convertir de milisegundos a segundos y asignarlo al tiempo de la busqueda
+        this.tiempo = estimatedTime;
         
         
         /////////////////////////BORAR////////////////////////////////////
