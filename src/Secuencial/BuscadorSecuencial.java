@@ -18,6 +18,7 @@ import org.jsoup.nodes.Document;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
+import modelo.Archivo;
 import modelo.PaginasWeb;
 
 /**
@@ -25,6 +26,11 @@ import modelo.PaginasWeb;
  * @author manfred
  */
 public class BuscadorSecuencial {    
+    Archivo archivo =  new Archivo();/////////////////////Borrar cuando se pegue todo            
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            
+            
+    ArrayList<String> urlWebPages;
     public ArrayList<Resultado> resultados = new ArrayList();//resultados de las busquedas    
     public long tiempo;// tiempo total de la busqueda
 
@@ -75,68 +81,18 @@ public class BuscadorSecuencial {
         
         return resultado;
     }
-
-    /**
-     * Función para leer los url de las páginas del archivo y almacenarlos en un
-     * arreglo, para mantenerlos en memoria dinámica
-     *
-     * @param rutaArchivo la ruta del archivo a leer
-     * @return un arreglo con los urls leídos
-     */
-    public String[] leerURLs(String rutaArchivo) {
-        File archivo;
-        FileReader fr = null;
-        BufferedReader br;
-
-        try {
-            // Apertura del fichero y creacion de BufferedReader para poder
-            // hacer una lectura comoda (disponer del metodo readLine()).
-            archivo = new File(rutaArchivo);
-            fr = new FileReader(archivo);
-            br = new BufferedReader(fr);
-
-            int largo = 0;//cantidad de urls
-            while (br.readLine() != null) {
-                largo++;
-            }
-            // Lectura del fichero
-            String linea;
-            String[] urls = new String[largo];
-
-            fr = new FileReader(archivo);//resetear valores del fileReader
-            br = new BufferedReader(fr);//resetear valores del bufferReader
-
-            int i = 0;//indice para el arreglo        
-            while (i < largo) {
-                linea = br.readLine();
-                urls[i] = linea;
-                i++;
-            }
-            return urls; // arreglo con las URLS
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            // En el finally cerramos el fichero, para asegurarnos
-            // que se cierra tanto si todo va bien como si salta 
-            // una excepcion.
-            try {
-                if (null != fr) {
-                    fr.close();
-                }
-            } catch (Exception e2) {
-                e2.printStackTrace();
-            }
-        }
-        return null;
-    }
+   
 
     public void buscar(String palabra) throws IOException {
-        String[] urls = leerURLs("//home//manfred//NetBeansProjects//TaskforceProjects//Buscador//trunk//src//Secuencial//urls.txt");
-        if (urls != null) {
-            for (int i = 0; i < urls.length; i++) {
-                String contenido = getContenidoHTML(urls[i]);
+      //borrar
+        this.archivo.direccionArchivo="//home//manfred//NetBeansProjects//TaskforceProjects//Buscador//trunk//src//Secuencial//urls.txt";                        
+      //fin de borrar
+        this.urlWebPages = archivo.leer();
+        if (urlWebPages != null) {
+            for (int i = 0; i < urlWebPages.size(); i++) {
+                String contenido = getContenidoHTML(urlWebPages.get(i));
               //  System.out.println(urls[i]);
-                Resultado resultado = buscarCoincidencia(palabra, contenido, urls[i]);
+                Resultado resultado = buscarCoincidencia(palabra, contenido, urlWebPages.get(i));
                 this.resultados.add(resultado);
                 //ordenar();
             }
