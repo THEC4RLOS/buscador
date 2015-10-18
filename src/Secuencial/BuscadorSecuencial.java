@@ -25,8 +25,8 @@ import modelo.PaginasWeb;
  * @author manfred
  */
 public class BuscadorSecuencial {    
-    ArrayList<Resultado> resultados = new ArrayList();//resultados de las busquedas
-    long tiempo;// tiempo total de la busqueda
+    public ArrayList<Resultado> resultados = new ArrayList();//resultados de las busquedas
+    public long tiempo;// tiempo total de la busqueda
 
     /**
      * Función para buscar las coincidencias de una palabra en el contenido de
@@ -67,9 +67,12 @@ public class BuscadorSecuencial {
         }
         long estimatedTime = System.currentTimeMillis() - startTime;
         long tiempoR = estimatedTime;
+        //System.out.println("correcto");
         Document doc = Jsoup.connect(url).get();
-        String titulo = doc.title();
+        
+        String titulo = doc.title();        
         Resultado resultado = new Resultado(coincidencias, url, texto, titulo, palabra, tiempoR);
+        
         return resultado;
     }
 
@@ -132,6 +135,7 @@ public class BuscadorSecuencial {
         if (urls != null) {
             for (int i = 0; i < urls.length; i++) {
                 String contenido = getContenidoHTML(urls[i]);
+              //  System.out.println(urls[i]);
                 Resultado resultado = buscarCoincidencia(palabra, contenido, urls[i]);
                 this.resultados.add(resultado);
                 //ordenar();
@@ -186,6 +190,7 @@ public class BuscadorSecuencial {
         long startTime = System.currentTimeMillis();// empieza el tiempo de busqueda de los terminos
         for (int i = 0; i < terminos.length; i++) {
             palabra = terminos[i];
+            System.out.println(palabra);
             this.buscar(palabra);
         }
         long estimatedTime = System.currentTimeMillis() - startTime;// finaliza el tiempo de busqueda de los terminos
@@ -211,7 +216,7 @@ public class BuscadorSecuencial {
      *
      * @param terminoBusqueda el termino de busqueda
      */
-    public void calcularTiempoPalabra(String terminoBusqueda) {
+    public ArrayList<EstadisticaPalabra> calcularTiempoPalabra(String terminoBusqueda,ArrayList<Resultado> arrayResultados) {
         //limpiar el texto de espacios y dividirlo por palabras
         String terminoBusquedaAux = "";
         ArrayList<EstadisticaPalabra> tiemposPalabras = new ArrayList<>();
@@ -226,10 +231,10 @@ public class BuscadorSecuencial {
         for (int i = 0; i < terminos.length; i++) {
             EstadisticaPalabra palabra = new EstadisticaPalabra();
             palabra.setPalabra(terminos[i]);
-            for (int j = 0; j < this.resultados.size(); j++) {
-                if (this.resultados.get(j).getCoincidencias() > 0
-                        && this.resultados.get(j).getPalabra().equals(terminos[i])) {
-                    palabra.setTiempo(palabra.getTiempo() + this.resultados.get(j).getTiempo());
+            for (int j = 0; j < arrayResultados.size(); j++) {
+                if (arrayResultados.get(j).getCoincidencias() > 0
+                        && arrayResultados.get(j).getPalabra().equals(terminos[i])) {
+                    palabra.setTiempo(palabra.getTiempo() + arrayResultados.get(j).getTiempo());
                 }
             }
             tiemposPalabras.add(palabra);
@@ -239,6 +244,7 @@ public class BuscadorSecuencial {
             System.out.println("Palabra: " + tiemposPalabras.get(i).getPalabra()
                     + "\nTiempo: " + tiemposPalabras.get(i).getTiempo() + " milisegungos");
         }
+        return tiemposPalabras;        
     }
 
     public void ordenar() {
@@ -253,7 +259,7 @@ public class BuscadorSecuencial {
   
     public static void main(String[] args) throws IOException {
         BuscadorSecuencial buscador = new BuscadorSecuencial();
-        buscador.searchManager("vida");
+        buscador.searchManager("vida | trabajo");
         //buscador.calcularTiempoPalabra("vida");
     }
 
