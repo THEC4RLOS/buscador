@@ -60,6 +60,8 @@ public class BuscadorSecuencial {
         palabra = palabra.toLowerCase();
         String contenidoAux = contenido.toLowerCase();
 
+        long startTime = System.currentTimeMillis();
+
         while (contenidoAux.contains(palabra)) {
             //System.out.println(contenido.substring(contenido.indexOf(palabra),contenido.indexOf(palabra)+palabra.length()));
             if (texto == null) {
@@ -81,9 +83,11 @@ public class BuscadorSecuencial {
             contenidoAux = contenidoAux.substring(contenidoAux.indexOf(palabra) + palabra.length(), contenidoAux.length());
             coincidencias++;
         }
+        long estimatedTime = System.currentTimeMillis() - startTime;
+        long tiempoR = estimatedTime;
         Document doc = Jsoup.connect(url).get();
         String titulo = doc.title();
-        Resultado resultado = new Resultado(coincidencias, url, texto, titulo,"");
+        Resultado resultado = new Resultado(coincidencias, url, texto, titulo, palabra, tiempoR);
         return resultado;
     }
 
@@ -219,26 +223,46 @@ public class BuscadorSecuencial {
             return null;
         }
     }
-            
-    public void searchManager(String terminoBusqueda){    
-        String [] terminos = terminoBusqueda.split("\\s");
-        
-    }
-    
-    public static void main(String[] args) throws IOException {
-        BuscadorSecuencial buscador = new BuscadorSecuencial();
 
+    public void searchManager(String terminoBusqueda) throws IOException {
+        //limpiar el texto de espacios y dividirlo por palabras
+        String terminoBusquedaAux="";
+        for (int x = 0; x < terminoBusqueda.length(); x++) {
+            if (terminoBusqueda.charAt(x) != ' ') {
+                terminoBusquedaAux += terminoBusqueda.charAt(x);
+            }
+        }        
+        terminoBusqueda = terminoBusquedaAux.replace("|", " ");
+        String[] terminos = terminoBusqueda.split("\\s");//dividir el texto en palabras
+        //
+        String palabra;
         long startTime = System.currentTimeMillis();
-        buscador.buscar("vida");
+        for (int i = 0; i < terminos.length; i++) {
+            palabra = terminos[i];
+            System.out.println(palabra);
+            this.buscar(palabra);
+        }
         long estimatedTime = System.currentTimeMillis() - startTime;
-        buscador.tiempo = estimatedTime / 1000;
-        System.out.println("largo: " + buscador.resultados.length);
-        for (int i = 0; i < buscador.resultados.length; i++) {
-            if (buscador.resultados[i].getCoincidencias() > 0) {
-                System.out.println(buscador.resultados[i].descripcion());
+        this.tiempo = estimatedTime / 1000;
+        
+        for (int i = 0; i < this.resultados.length; i++) {
+            if (this.resultados[i].getCoincidencias() > 0) {
+                System.out.println(this.resultados[i].descripcion());
                 System.out.println("----------------------------------------------------------------");
             }
         }
-        System.out.println("tiempo de ejecución:" + buscador.tiempo + "segundos");
+    }
+
+    public static void main(String[] args) throws IOException {
+        BuscadorSecuencial buscador = new BuscadorSecuencial();
+        buscador.searchManager("vida | trabajo");
+//        System.out.println("largo: " + buscador.resultados.length);
+//        for (int i = 0; i < buscador.resultados.length; i++) {
+//            if (buscador.resultados[i].getCoincidencias() > 0) {
+//                System.out.println(buscador.resultados[i].descripcion());
+//                System.out.println("----------------------------------------------------------------");
+//            }
+//        }
+//        System.out.println("tiempo de ejecución:" + buscador.tiempo + "segundos");
     }
 }
