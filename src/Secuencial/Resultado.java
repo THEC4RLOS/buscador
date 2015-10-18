@@ -7,13 +7,23 @@ public class Resultado {
     private String textoCoincidencia;
     private String Titulo;
     private String palabra;
+    private long tiempo;
+
+    public long getTiempo() {
+        return tiempo;
+    }
+
+    public void setTiempo(long tiempo) {
+        this.tiempo = tiempo;
+    }
     
-    public Resultado(int coincidencias, String url, String textoCoincidencia, String titulo, String palabra) {
+    public Resultado(int coincidencias, String url, String textoCoincidencia, String titulo, String palabra,long tiempo) {
         this.coincidencias = coincidencias;
         this.url = url;
         this.textoCoincidencia = textoCoincidencia;
         this.Titulo = titulo;
         this.palabra = palabra;
+        this.tiempo = tiempo;
     }
     
     public String descripcion(){
