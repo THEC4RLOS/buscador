@@ -18,13 +18,13 @@ import org.jsoup.nodes.Document;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
+import modelo.PaginasWeb;
 
 /**
  *
  * @author manfred
  */
-public class BuscadorSecuencial {
-
+public class BuscadorSecuencial {    
     ArrayList<Resultado> resultados = new ArrayList();//resultados de las busquedas
     long tiempo;// tiempo total de la busqueda
 
@@ -134,7 +134,7 @@ public class BuscadorSecuencial {
                 String contenido = getContenidoHTML(urls[i]);
                 Resultado resultado = buscarCoincidencia(palabra, contenido, urls[i]);
                 this.resultados.add(resultado);
-                ordenar();
+                //ordenar();
             }
         }
     }
@@ -171,7 +171,7 @@ public class BuscadorSecuencial {
      *
      * @param terminoBusqueda termino o terminos a buscar
      */
-    public void searchManager(String terminoBusqueda) throws IOException {
+    public  ArrayList<Resultado> searchManager(String terminoBusqueda) throws IOException {
         //limpiar el texto de espacios y dividirlo por palabras
         String terminoBusquedaAux = "";
         for (int x = 0; x < terminoBusqueda.length(); x++) {
@@ -190,14 +190,18 @@ public class BuscadorSecuencial {
         }
         long estimatedTime = System.currentTimeMillis() - startTime;// finaliza el tiempo de busqueda de los terminos
         this.tiempo = estimatedTime / 1000; // convertir de milisegundos a segundos y asignarlo al tiempo de la busqueda
-
+        
+        
+        /////////////////////////BORAR////////////////////////////////////
         for (int i = 0; i < this.resultados.size(); i++) {
             if (this.resultados.get(i).getCoincidencias() > 0) {
                 System.out.println(this.resultados.get(i).descripcion());
                 System.out.println("----------------------------------------------------------------");
             }
-        }
+        }        
         System.out.println("Tiempo total: " + this.tiempo);
+        /////////////////////////BORAR////////////////////////////////////
+        return this.resultados;        
     }
 
     /**
@@ -246,10 +250,11 @@ public class BuscadorSecuencial {
         });
     }
 
+  
     public static void main(String[] args) throws IOException {
         BuscadorSecuencial buscador = new BuscadorSecuencial();
         buscador.searchManager("vida");
-        buscador.calcularTiempoPalabra("vida");
+        //buscador.calcularTiempoPalabra("vida");
     }
 
 }
