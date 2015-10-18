@@ -8,7 +8,7 @@ import java.util.concurrent.RecursiveTask;
 import modelo.PaginasWeb;
 
 // Busca  una palabra en cada pagina
-public class Palabra extends RecursiveTask<ArrayList<PaginasWeb>> {
+public class Palabra extends RecursiveTask<ArrayList<Resultado>> {
 
     private ArrayList<String> paginasWeb = null;
     private String palabra = "";
@@ -17,12 +17,11 @@ public class Palabra extends RecursiveTask<ArrayList<PaginasWeb>> {
     public Palabra(ArrayList<String> paginasWeb, String palabra) {
         this.paginasWeb = paginasWeb;
         this.palabra = palabra;
-        this.sitiosWeb = new ArrayList<>();
         initArrayPaginasWeb();
     }
 
     @Override
-    protected ArrayList<PaginasWeb> compute() {
+    protected ArrayList<Resultado> compute() {
 
         //if work is above threshold, break tasks up into smaller tasks
         if (this.palabra.contains("|")) {
@@ -34,12 +33,12 @@ public class Palabra extends RecursiveTask<ArrayList<PaginasWeb>> {
             }
 
             //int result = 0;
-            ArrayList<PaginasWeb> result;
+            ArrayList<Resultado> result = new ArrayList<>();
             for (Palabra subtask : subtasks) {
-                result = subtask.join();
+                result.addAll(subtask.join());
             }
+            return result;
             //System.out.println("muchos Palabra Numero "+sitiosWeb.size());
-            return this.sitiosWeb;
 
         } else {
             ArrayList<Resultado> mergedResult;
@@ -50,9 +49,10 @@ public class Palabra extends RecursiveTask<ArrayList<PaginasWeb>> {
             int cores = Runtime.getRuntime().availableProcessors();
             ForkJoinPool forkJoinPool = new ForkJoinPool(cores);
             mergedResult = forkJoinPool.invoke(tareaPagina);
-            addResultado(mergedResult);
+            return mergedResult;
+            //addResultado(mergedResult);
             //System.out.println("uno Palabra Numero "+sitiosWeb.size());
-            return this.sitiosWeb;
+            
         }
     }
 
@@ -93,9 +93,10 @@ public class Palabra extends RecursiveTask<ArrayList<PaginasWeb>> {
     }
     
     public final void initArrayPaginasWeb(){
+        this.sitiosWeb = new ArrayList<>();
         for(String url: paginasWeb){
             PaginasWeb nPaginasWeb = new PaginasWeb(url, new ArrayList<Resultado>());
-            sitiosWeb.add(nPaginasWeb);
+            this.sitiosWeb.add(nPaginasWeb);
             //System.out.println("initArrayPaginasWeb");
         }
     }

@@ -1,23 +1,125 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package buscador;
 
-/**
- *
- * @author carlos
- */
+import Paralelo.Palabra;
+import Secuencial.Resultado;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.util.ArrayList;
+import java.util.concurrent.ForkJoinPool;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextPane;
+import modelo.Archivo;
+import modelo.PaginasWeb;
+
 public class BrowserUI extends javax.swing.JFrame {
 
+    ArrayList<String> urlWebPages;
+    Archivo archivo;
+    Palabra tareaPalabra;
+    ArrayList<PaginasWeb> mergedResult;
+    ArrayList<Resultado> mergedResulta;
+    private ArrayList<PaginasWeb> sitiosWeb;
+    
     /**
      * Creates new form BrowserUI
      */
     public BrowserUI() {
         initComponents();
+        this.urlWebPages = new ArrayList<>();
+        this.archivo = new Archivo();
+        setUrlWebPages();
+        initArrayPaginasWeb();
     }
 
+    public void setUrlWebPages() {
+        this.urlWebPages = archivo.leer();
+    }
+    
+    public void metodoRaro(ArrayList<String> link, String palabra){
+        //System.out.println(link + palabra);
+        Palabra myRecursiveTask = new Palabra(link, palabra);
+        
+        int cores = Runtime.getRuntime().availableProcessors();
+        ForkJoinPool forkJoinPool = new ForkJoinPool(cores);
+        this.mergedResulta = forkJoinPool.invoke(myRecursiveTask);
+        addResultado();
+        //System.out.println("termino" + mergedResult.size());
+    }
+    
+    /**
+    * Agrega un objeto de tipo resultado al objeto Paginzas Web correcto 
+    * @param resultado
+    */
+    public void addResultado(ArrayList<Resultado> resultado){
+        for (Resultado resultadoAux: resultado){
+            addResultadoAux(resultadoAux);
+            //System.out.println("addResultado");
+        }
+    }
+    
+    public void addResultadoAux (Resultado resultado){
+        for (PaginasWeb paginaWeb: this.sitiosWeb){
+            if (paginaWeb.getUrl().equals(resultado.getUrl())){
+                paginaWeb.addItemListaResultados(resultado);
+                //System.out.println("addResultadoAux");                
+            }
+        }
+    }
+    
+    public final void initArrayPaginasWeb(){
+        this.sitiosWeb = new ArrayList<>();
+        for(String url: urlWebPages){
+            PaginasWeb nPaginasWeb = new PaginasWeb(url, new ArrayList<Resultado>());
+            this.sitiosWeb.add(nPaginasWeb);
+            //System.out.println("initArrayPaginasWeb");
+        }
+    }
+    
+    public void addResultado(){
+        String resultado;
+        
+        for (PaginasWeb paw: mergedResult){
+            System.out.println("-------------------------");            
+            String url =paw.getUrl();
+            String titulo="";
+            String extracto = "";
+            
+            for (Resultado pawq: paw.getListaResultados()){
+                titulo = pawq.getTitulo();
+                if(pawq.getTextoCoincidencia()!=null)
+                    extracto += pawq.getTextoCoincidencia();
+            }
+            System.out.println("Titulo: "+titulo);
+            System.out.println("Url: "+url);
+            System.out.println("Extracto: "+extracto);
+            System.out.println("-------------------------");
+            //resultado = panelResultados.getText();
+            //titulo = "<h1>"+titulo+"<h1/><br>";
+            //url = "<a href='"+url+ "" +"'>"+url+"<a/><br>";
+            //extracto = "<p>"+extracto+"<p/><br><br>";
+            //resultado += titulo + url + extracto;
+            //System.out.println(resultado);
+            //panelResultados.setText(resultado);
+        }
+    }
+    /*
+    private void appendToPane(JTextPane tp, String msg, Color c)
+    {
+        StyleContext sc = StyleContext.getDefaultStyleContext();
+        AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, c);
+
+        aset = sc.addAttribute(aset, StyleConstants.FontFamily, "Lucida Console");
+        aset = sc.addAttribute(aset, StyleConstants.Alignment, StyleConstants.ALIGN_JUSTIFIED);
+
+        int len = tp.getDocument().getLength();
+        tp.setCaretPosition(len);
+        tp.setCharacterAttributes(aset, false);
+        tp.replaceSelection(msg);
+    }*/
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -27,58 +129,79 @@ public class BrowserUI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jTextField1 = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
+        txtTerminos = new javax.swing.JTextField();
+        btnBuscar = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        panelResultados = new javax.swing.JTextPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Buscador");
         setPreferredSize(new java.awt.Dimension(1000, 700));
 
-        jButton1.setText("Buscar");
+        btnBuscar.setText("Buscar");
+        btnBuscar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBuscarActionPerformed(evt);
+            }
+        });
 
         jButton2.setText("Secuencial");
 
         jLabel1.setText("Modo:");
 
+        panelResultados.setEditable(false);
+        panelResultados.setContentType("text/html"); // NOI18N
+        jScrollPane1.setViewportView(panelResultados);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(150, 150, 150)
-                                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(209, 209, 209)
-                                .addComponent(jButton1)))
-                        .addGap(0, 138, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(txtTerminos, javax.swing.GroupLayout.PREFERRED_SIZE, 331, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnBuscar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 391, Short.MAX_VALUE)
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton2)))
+                        .addComponent(jButton2))
+                    .addComponent(jScrollPane1))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton2)
-                    .addComponent(jLabel1))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 109, Short.MAX_VALUE)
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1)
+                    .addComponent(txtTerminos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnBuscar))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton1)
-                .addGap(104, 104, 104))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 633, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
+        // TODO add your handling code here:
+        
+        String terminos = txtTerminos.getText();
+        setUrlWebPages();
+        //panelResultados.setText("<h1>hola<h1/>");
+        metodoRaro(this.urlWebPages, terminos);
+        for(String link: urlWebPages){
+            System.out.println(link);
+        }
+        //addResultado();
+    }//GEN-LAST:event_btnBuscarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -117,9 +240,11 @@ public class BrowserUI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton btnBuscar;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JTextField jTextField1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextPane panelResultados;
+    private javax.swing.JTextField txtTerminos;
     // End of variables declaration//GEN-END:variables
 }

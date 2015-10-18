@@ -40,8 +40,11 @@ public class Pagina extends RecursiveTask<ArrayList<Resultado>> {
             //int result = 0;
             Resultado result;
             for (Pagina subtask : subtasks) {
+
                 result = subtask.join().get(0);
-                this.resultado.add(result);
+                if (result != null) {
+                    this.resultado.add(result);
+                }
             }
             //System.out.println("muchos Pagina Numero "+resultado.size());
             return this.resultado;
@@ -49,20 +52,33 @@ public class Pagina extends RecursiveTask<ArrayList<Resultado>> {
         } else {
             ArrayList<Resultado> mergedResult = new ArrayList<>();
             Resultado result;
-            
+
             try {
                 Document doc = Jsoup.connect(this.linkPagina.get(0)).get();
                 String titulo = doc.title();
-                
+
                 Texto tareaTexto = new Texto(0, doc.body().text(), doc.body().text(), this.palabra);
                 int cores = Runtime.getRuntime().availableProcessors();
                 ForkJoinPool forkJoinPool = new ForkJoinPool(cores);
                 result = forkJoinPool.invoke(tareaTexto);
-                result.setTitulo(titulo);
-                result.setUrl(this.linkPagina.get(0));
-                //System.out.println(titulo + " "+ this.palabra + " " +mergedResult);
-                mergedResult.add(result);
-                
+                if (result.getCoincidencias() != 0){
+                    result.setTitulo(titulo);
+                    result.setUrl(this.linkPagina.get(0));
+                    /*{
+                        System.out.println("<IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII");
+                        System.out.println(result.getCoincidencias());
+                        System.out.println(result.getPalabra());
+                        System.out.println(result.getTextoCoincidencia());
+                        System.out.println(result.getTitulo());
+                        System.out.println(result.getUrl());
+                        System.out.println("IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII>");
+                    }*/
+                    //System.out.println(titulo + " "+ this.palabra + " " +mergedResult);
+                    mergedResult.add(result);
+                }
+                else
+                    mergedResult.add(null);
+
             } catch (IOException e) {
             }
             //System.out.println("uno Pagina Numero "+mergedResult.size());
@@ -72,13 +88,13 @@ public class Pagina extends RecursiveTask<ArrayList<Resultado>> {
 
     private List<Pagina> createSubtasks() {
         List<Pagina> subtasks = new ArrayList<>();
-        
+
         ArrayList<String> linkPaginaAux = new ArrayList<>();
         linkPaginaAux.add(this.paginasWeb.get(0));
         this.paginasWeb.remove(0);
         Pagina subtask1 = new Pagina(this.paginasWeb, linkPaginaAux, this.palabra);
         Pagina subtask2 = new Pagina(this.paginasWeb, this.paginasWeb, this.palabra);
-        
+
         subtasks.add(subtask1);
         subtasks.add(subtask2);
 

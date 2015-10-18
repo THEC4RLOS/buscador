@@ -19,37 +19,7 @@ public class Buscador {
     public Buscador(ArrayList<PaginasWeb> paginasWeb) {
         this.paginasWeb = paginasWeb;
     }
-    /*
-    public void addItemPaginasWeb(Resultado resultado) {
-        if (existeSitioWeb(resultado.getUrl()))
-            updateItem(resultado);
-        else
-        {
-            ArrayList<Resultado> nArrayListResultado = new ArrayList<>();
-            nArrayListResultado.add(resultado);
-            PaginasWeb nPaginasWeb = new PaginasWeb(resultado.getUrl(), nArrayListResultado);
-            this.paginasWeb.add(nPaginasWeb);
-        }
-    }
     
-    public boolean existeSitioWeb (String url){
-        for(PaginasWeb sitio: this.paginasWeb){
-            if(sitio.getUrl().equals(url))
-                return true;
-        }
-        return false;
-    }
-    
-    public void updateItem(Resultado resultado){
-        ArrayList<Resultado> aux;
-        for(PaginasWeb sitio: this.paginasWeb){
-            if(sitio.getUrl().equals(resultado.getUrl())){
-                aux = sitio.getListaResultados();
-                aux.add(resultado);
-            }
-        }
-    }
-    */
     public static void main(String[] args) {
         
         ArrayList<String> pw = new ArrayList<>();
@@ -70,7 +40,7 @@ public class Buscador {
         Palabra myRecursiveTask = new Palabra(pw,p);
         int cores = Runtime.getRuntime().availableProcessors();
         ForkJoinPool forkJoinPool = new ForkJoinPool(cores);
-        ArrayList<PaginasWeb> mergedResult = forkJoinPool.invoke(myRecursiveTask);
+        /*ArrayList<PaginasWeb> mergedResult = forkJoinPool.invoke(myRecursiveTask);
         
         for (PaginasWeb paw: mergedResult){
             System.out.println(paw.getUrl());
@@ -79,7 +49,7 @@ public class Buscador {
                         + " " + pawq.getTextoCoincidencia() + " " 
                         + pawq.getUrl() + " " + pawq.getTitulo());
             }
-        }
+        }*/
         //System.out.println("mergedResult = " + mergedResult);
     }
 }
