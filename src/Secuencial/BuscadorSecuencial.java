@@ -26,7 +26,7 @@ import modelo.PaginasWeb;
  * @author manfred
  */
 public class BuscadorSecuencial {    
-    Archivo archivo =  new Archivo();/////////////////////Borrar cuando se pegue todo            
+    public Archivo archivo =  new Archivo();/////////////////////Borrar cuando se pegue todo            
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             
             

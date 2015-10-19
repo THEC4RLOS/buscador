@@ -4,7 +4,6 @@ import Secuencial.Resultado;
 import java.util.ArrayList;
 
 public class PaginasWeb {
-
     private String url;
     private ArrayList<Resultado> listaResultados;
     private int incidencias = 0;
