@@ -40,6 +40,7 @@ public class Texto extends RecursiveTask<Resultado> {
                 //result += subtask.join();
                 resultAux = subtask.join();
                 result.setCoincidencias(result.getCoincidencias() + resultAux.getCoincidencias());
+                result.setTiempo(result.getTiempo()+resultAux.getTiempo());
                 if (result.getTextoCoincidencia() == null || result.getTextoCoincidencia().equals("")) {
                     result.setTextoCoincidencia(resultAux.getTextoCoincidencia());
                 }

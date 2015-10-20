@@ -1,50 +1,72 @@
 package buscador;
 
 import Paralelo.Palabra;
+import Secuencial.BuscadorSecuencial;
+import Secuencial.EstadisticaPalabra;
 import Secuencial.Resultado;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.concurrent.ForkJoinPool;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.event.HyperlinkEvent;
 import modelo.Archivo;
 import modelo.PaginasWeb;
 
 public class BrowserUI extends javax.swing.JFrame {
 
+    boolean modo = false;// true es paralelo
+
     ArrayList<String> urlWebPages;
     Archivo archivo;
     Palabra tareaPalabra;
     ArrayList<Resultado> mergedResulta;
-    private ArrayList<PaginasWeb> sitiosWeb;
+    ArrayList<PaginasWeb> sitiosWebConcurrente;
+    public ArrayList<EstadisticaPalabra> tiemposPalabrasConcurrente = new ArrayList<>();
+    
+    //variables para secuencial
+    BuscadorSecuencial buscador;
+    ArrayList<PaginasWeb> sitiosWebSecuencial;
+    public ArrayList<Resultado> resultadosSecuencial;
+    public ArrayList<EstadisticaPalabra> tiemposPalabrasSecuencial = new ArrayList<>();
 
     /**
      * Creates new form BrowserUI
      */
     public BrowserUI() {
         initComponents();
-        this.urlWebPages = new ArrayList<>();
         this.archivo = new Archivo();
+        this.urlWebPages = new ArrayList<>();
         setUrlWebPages();
         initArrayPaginasWeb();
     }
 
-    public void setUrlWebPages() {
+    private void setUrlWebPages() {
         this.urlWebPages = archivo.leer();
     }
 
-    public void metodoRaro(ArrayList<String> link, String palabra) {
+    public void ejecutarConcurrente(ArrayList<String> link, String palabra) {
         //System.out.println(link + palabra);
         Palabra myRecursiveTask = new Palabra(link, palabra);
 
         int cores = Runtime.getRuntime().availableProcessors();
         ForkJoinPool forkJoinPool = new ForkJoinPool(cores);
         this.mergedResulta = forkJoinPool.invoke(myRecursiveTask);
-        System.out.println("termino" + mergedResulta.size());
-        addResultado(mergedResulta);
-        addResultado();
-        
+        System.out.println("termino" + mergedResulta.size());        
+        addResultado(mergedResulta, true);
+        addResultado(true);
+        buscador.calcularTiempoPalabra(palabra, mergedResulta);
+
+    }
+
+    public void ejecutarSecuencial(String terminos) throws IOException {
+        this.buscador = new BuscadorSecuencial();
+        this.resultadosSecuencial = buscador.searchManager(terminos);
+        addResultado(this.resultadosSecuencial, false);
+        addResultado(false);
+        buscador.calcularTiempoPalabra(terminos, this.resultadosSecuencial);
     }
 
     /**
@@ -52,39 +74,42 @@ public class BrowserUI extends javax.swing.JFrame {
      *
      * @param resultado
      */
-    public void addResultado(ArrayList<Resultado> resultado) {
+    public void addResultado(ArrayList<Resultado> resultado, boolean isConcurrente) {
         for (Resultado resultadoAux : resultado) {
-            addResultadoAux(resultadoAux);
-            //System.out.println("addResultado");
+            addResultadoAux(resultadoAux, isConcurrente);
         }
+
     }
 
-    public void addResultadoAux(Resultado resultado) {
-        for (PaginasWeb paginaWeb : this.sitiosWeb) {
-            if (paginaWeb.getUrl().equals(resultado.getUrl())) {
-                paginaWeb.addItemListaResultados(resultado);
-                //System.out.println("addResultadoAux");                
+    public void addResultadoAux(Resultado resultado, boolean isConcurrente) {
+        ArrayList<PaginasWeb> paginaWeb;
+        if (isConcurrente) {
+            paginaWeb = sitiosWebConcurrente;
+        } else {
+            paginaWeb = sitiosWebSecuencial;
+        }
+        for (PaginasWeb pagina : paginaWeb) {
+            if (pagina.getUrl().equals(resultado.getUrl())) {
+                pagina.addItemListaResultados(resultado);
+                pagina.setIncidencias(pagina.getIncidencias() + resultado.getCoincidencias());
             }
         }
     }
 
-    public final void initArrayPaginasWeb() {
-        this.sitiosWeb = new ArrayList<>();
-        for (String url : urlWebPages) {
-            PaginasWeb nPaginasWeb = new PaginasWeb(url, new ArrayList<Resultado>());
-            this.sitiosWeb.add(nPaginasWeb);
-            //System.out.println("initArrayPaginasWeb");
-        }
-    }
-
-    public void addResultado() {
+    public void addResultado(boolean modo) {
         String resultado = "";
         panelResultados.setText("");
         String url = "";
         String titulo = "";
         String extracto = "";
         boolean imprimir = false;
-        for (PaginasWeb resultadoBusqueda : sitiosWeb) {
+        ArrayList<PaginasWeb> paginas;
+        if (modo == true) {
+            paginas = this.sitiosWebConcurrente;
+        } else {
+            paginas = this.sitiosWebSecuencial;
+        }
+        for (PaginasWeb resultadoBusqueda : paginas) {
             for (Resultado resultadoPalabra : resultadoBusqueda.getListaResultados()) {
                 if (resultadoPalabra.getCoincidencias() != 0) {
                     imprimir = true;
@@ -93,26 +118,38 @@ public class BrowserUI extends javax.swing.JFrame {
                     extracto = resultadoPalabra.getTextoCoincidencia();
                 }
             }
-        }
-        String resul = "";
-        if (imprimir) {
-            System.out.println("-------------------------");
-            System.out.println("Titulo: " + titulo);
-            System.out.println("Url: " + url);
-            System.out.println("Extracto: " + extracto);
-            System.out.println("-------------------------");
+            String resul = "";
+            if (imprimir) {
+                System.out.println("-------------------------");
+                System.out.println("Titulo: " + titulo);
+                System.out.println("Url: " + url);
+                System.out.println("Extracto: " + extracto);
+                System.out.println("-------------------------");
 
-            //resultado = panelResultados.getText();
-            titulo = "<h2>" + titulo + "<h2/><br>";
-            url = "<a href='" + url + "'>" + url + "<a/><br>";
-            extracto = "<p>" + extracto + "<p/><br><br>";
-            resul = titulo + url + extracto;
-            resultado = resultado + resul;
-            System.out.println(resultado + resul);
+                //resultado = panelResultados.getText();
+                titulo = "<h2>" + titulo + "<h2/><br>";
+                url = "<a href='" + url + "'>" + url + "<a/><br>";
+                extracto = "<p>" + extracto + "<p/><br><br>";
+                resul = titulo + url + extracto;
+                resultado = resultado + resul;
+                System.out.println(resultado + resul);
 
+            }
+            panelResultados.setText(resultado);
         }
-        panelResultados.setText(resultado);
+
         //panelResultados.setText();
+    }
+
+    public final void initArrayPaginasWeb() {
+        this.sitiosWebConcurrente = new ArrayList<>();
+        this.sitiosWebSecuencial = new ArrayList<>();
+        for (String url : urlWebPages) {
+            PaginasWeb nPaginasWeb = new PaginasWeb(url, new ArrayList<Resultado>());
+            this.sitiosWebConcurrente.add(nPaginasWeb);
+            this.sitiosWebSecuencial.add(nPaginasWeb);
+            //panelResultados.setText("<h1>hola<h1/>");
+        }
     }
 
     /**
@@ -126,14 +163,15 @@ public class BrowserUI extends javax.swing.JFrame {
 
         txtTerminos = new javax.swing.JTextField();
         btnBuscar = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        btnModo = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         panelResultados = new javax.swing.JTextPane();
+        btnEstadisticas = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Buscador");
-        setPreferredSize(new java.awt.Dimension(1000, 700));
+        setPreferredSize(new java.awt.Dimension(1000, 725));
 
         btnBuscar.setText("Buscar");
         btnBuscar.addActionListener(new java.awt.event.ActionListener() {
@@ -142,7 +180,12 @@ public class BrowserUI extends javax.swing.JFrame {
             }
         });
 
-        jButton2.setText("Secuencial");
+        btnModo.setText("Secuencial");
+        btnModo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnModoActionPerformed(evt);
+            }
+        });
 
         jLabel1.setText("Modo:");
 
@@ -154,6 +197,13 @@ public class BrowserUI extends javax.swing.JFrame {
             }
         });
         jScrollPane1.setViewportView(panelResultados);
+
+        btnEstadisticas.setText("Estadisticas");
+        btnEstadisticas.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEstadisticasActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -169,36 +219,48 @@ public class BrowserUI extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 391, Short.MAX_VALUE)
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton2))
+                        .addComponent(btnModo))
                     .addComponent(jScrollPane1))
                 .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addGap(437, 437, 437)
+                .addComponent(btnEstadisticas)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton2)
+                    .addComponent(btnModo)
                     .addComponent(jLabel1)
                     .addComponent(txtTerminos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnBuscar))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 633, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 610, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnEstadisticas)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
-        // TODO add your handling code here:
         String terminos = txtTerminos.getText();
         setUrlWebPages();
         //panelResultados.setText("<h1>hola<h1/>");
-        metodoRaro(this.urlWebPages, terminos);
-        for (String link : urlWebPages) {
-            System.out.println(link);
+        if (modo == true) {
+            ejecutarConcurrente(this.urlWebPages, terminos);
+        } else {
+            try {
+                ejecutarSecuencial(terminos);
+            } catch (IOException ex) {
+                Logger.getLogger(BrowserUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
+
+
     }//GEN-LAST:event_btnBuscarActionPerformed
 
     private void panelResultadosHyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {//GEN-FIRST:event_panelResultadosHyperlinkUpdate
@@ -211,6 +273,21 @@ public class BrowserUI extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_panelResultadosHyperlinkUpdate
+
+    private void btnModoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModoActionPerformed
+        if (modo == false) {
+            modo = true;
+            this.btnModo.setText("Concurrente");
+        }
+        else{
+            modo = false;
+            this.btnModo.setText("Secuencial");
+        }
+    }//GEN-LAST:event_btnModoActionPerformed
+
+    private void btnEstadisticasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEstadisticasActionPerformed
+        
+    }//GEN-LAST:event_btnEstadisticasActionPerformed
 
     /**
      * @param args the command line arguments
@@ -226,16 +303,21 @@ public class BrowserUI extends javax.swing.JFrame {
                 if ("Nimbus".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
+
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(BrowserUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(BrowserUI.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(BrowserUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(BrowserUI.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(BrowserUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(BrowserUI.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(BrowserUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(BrowserUI.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
         //</editor-fold>
@@ -250,7 +332,8 @@ public class BrowserUI extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBuscar;
-    private javax.swing.JButton jButton2;
+    private javax.swing.JButton btnEstadisticas;
+    private javax.swing.JButton btnModo;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextPane panelResultados;

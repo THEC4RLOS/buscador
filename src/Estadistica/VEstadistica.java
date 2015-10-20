@@ -29,25 +29,28 @@ import org.jfree.data.category.DefaultCategoryDataset;
  * @author manfred
  */
 public class VEstadistica extends javax.swing.JFrame {
-
+    public BuscadorSecuencial buscador;
     Archivo archivo;
     ArrayList<String> urlWebPages;
 
     ///variables para estadisticas de secuencial
     public ArrayList<Resultado> resultadosSecuencial;
     public ArrayList<EstadisticaPalabra> tiemposPalabrasSecuencial = new ArrayList<>();
-    ArrayList<PaginasWeb> sitiosWebSecuencial;
-    public BuscadorSecuencial buscador;
-
+    ArrayList<PaginasWeb> sitiosWebSecuencial;    
     /// variables para estadisticas de concurrente
+
+    ///varibles concurrente
+    ArrayList<Resultado> mergedResulta;
+    ArrayList<PaginasWeb> sitiosWebConcurrente;
+    public ArrayList<EstadisticaPalabra> tiemposPalabrasConcurrente = new ArrayList<>();
+    ///
+
     /**
      * Creates new form VEstadistica
      */
-    public VEstadistica() throws IOException {
-        this.archivo = new Archivo();
-        this.archivo.direccionArchivo = "//home//manfred//NetBeansProjects//TaskforceProjects//Buscador//trunk//src//Secuencial//urls.txt";
-        this.buscador = new BuscadorSecuencial();//BORAR
-        this.buscador.searchManager("vida | trabajo |casa"); //BORRAR
+    public VEstadistica() throws IOException {                
+        
+        
         this.resultadosSecuencial = buscador.resultados;//BORAR
         this.urlWebPages = archivo.leer();// inicializar URLS BORRAR
         initArrayPaginasWeb();//inicializar el arreglo de paginas web
@@ -85,7 +88,7 @@ public class VEstadistica extends javax.swing.JFrame {
         }
     }
 
-    public void graficar(ArrayList<PaginasWeb> sitiosWeb) {
+    public void graficar(boolean isConcurrente, ArrayList<PaginasWeb> sitiosWeb, ArrayList<EstadisticaPalabra> tiemposPalabras, ArrayList<Resultado> resultados) {
         addResultado(this.resultadosSecuencial);//meter las coincidencias a cada pagina web
         DefaultCategoryDataset barChartDatos = new DefaultCategoryDataset();// grafico de secuencial
 
@@ -94,14 +97,17 @@ public class VEstadistica extends javax.swing.JFrame {
         }
 
         //fin datos
-        
         //generar los datos de las tablas
-        this.tiemposPalabrasSecuencial = buscador.calcularTiempoPalabra("vida | trabajo|casa", resultadosSecuencial);
-
-        DefaultTableModel modeloTablaIncidencias = (DefaultTableModel) tablaIncidenciaSec.getModel();
+        tiemposPalabras = buscador.calcularTiempoPalabra("vida | trabajo|casa", resultados);
+        DefaultTableModel modeloTablaIncidencias;
+        if (isConcurrente == false) {
+            modeloTablaIncidencias = (DefaultTableModel) tablaIncidenciaSec.getModel();
+        } else {
+            modeloTablaIncidencias = (DefaultTableModel) tablaIncidenciaSConc.getModel();
+        }
         Object[] fila = new Object[modeloTablaIncidencias.getColumnCount()];
         int cont = 0;
-        for (EstadisticaPalabra palabra : tiemposPalabrasSecuencial) {
+        for (EstadisticaPalabra palabra : tiemposPalabras) {
             fila[0] = palabra.getPalabra();
             fila[1] = palabra.getTiempo();
             modeloTablaIncidencias.addRow(fila);
@@ -118,9 +124,17 @@ public class VEstadistica extends javax.swing.JFrame {
         barChartCP.setRangeGridlinePaint(Color.cyan);
 
         ChartPanel barPanel = new ChartPanel(grafico);
-        lienzo.removeAll();
-        lienzo.add(barPanel, BorderLayout.CENTER);
-        lienzo.validate();
+        if (isConcurrente == true) {
+            lienzoConc.removeAll();
+            lienzoConc.add(barPanel, BorderLayout.CENTER);
+            lienzoConc.validate();
+        }
+
+        if (isConcurrente == false) {
+            lienzoSec.removeAll();
+            lienzoSec.add(barPanel, BorderLayout.CENTER);
+            lienzoSec.validate();
+        }
     }
 
     /**
@@ -134,12 +148,12 @@ public class VEstadistica extends javax.swing.JFrame {
 
         IncidenciasB = new javax.swing.JButton();
         CPUB = new javax.swing.JButton();
-        lienzo = new javax.swing.JPanel();
+        lienzoSec = new javax.swing.JPanel();
         pTablaSec = new javax.swing.JScrollPane();
         tablaIncidenciaSec = new javax.swing.JTable();
         pTablaSec1 = new javax.swing.JScrollPane();
-        tablaIncidenciaSec1 = new javax.swing.JTable();
-        lienzo1 = new javax.swing.JPanel();
+        tablaIncidenciaSConc = new javax.swing.JTable();
+        lienzoConc = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -163,8 +177,8 @@ public class VEstadistica extends javax.swing.JFrame {
 
         CPUB.setText("CPU");
 
-        lienzo.setBackground(new java.awt.Color(204, 204, 204));
-        lienzo.setLayout(new java.awt.BorderLayout());
+        lienzoSec.setBackground(new java.awt.Color(204, 204, 204));
+        lienzoSec.setLayout(new java.awt.BorderLayout());
 
         tablaIncidenciaSec.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -176,7 +190,7 @@ public class VEstadistica extends javax.swing.JFrame {
         ));
         pTablaSec.setViewportView(tablaIncidenciaSec);
 
-        tablaIncidenciaSec1.setModel(new javax.swing.table.DefaultTableModel(
+        tablaIncidenciaSConc.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -184,10 +198,10 @@ public class VEstadistica extends javax.swing.JFrame {
                 "Incidencia", "Tiempo(ms)"
             }
         ));
-        pTablaSec1.setViewportView(tablaIncidenciaSec1);
+        pTablaSec1.setViewportView(tablaIncidenciaSConc);
 
-        lienzo1.setBackground(new java.awt.Color(204, 204, 204));
-        lienzo1.setLayout(new java.awt.BorderLayout());
+        lienzoConc.setBackground(new java.awt.Color(204, 204, 204));
+        lienzoConc.setLayout(new java.awt.BorderLayout());
 
         jLabel1.setText("Secuencial");
 
@@ -222,9 +236,9 @@ public class VEstadistica extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(15, 15, 15)
-                        .addComponent(lienzo, javax.swing.GroupLayout.PREFERRED_SIZE, 645, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lienzoSec, javax.swing.GroupLayout.PREFERRED_SIZE, 645, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lienzo1, javax.swing.GroupLayout.PREFERRED_SIZE, 618, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lienzoConc, javax.swing.GroupLayout.PREFERRED_SIZE, 618, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -299,8 +313,8 @@ public class VEstadistica extends javax.swing.JFrame {
                             .addComponent(pTablaSec1, javax.swing.GroupLayout.PREFERRED_SIZE, 196, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addGap(20, 20, 20)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(lienzo, javax.swing.GroupLayout.DEFAULT_SIZE, 430, Short.MAX_VALUE)
-                    .addComponent(lienzo1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(lienzoSec, javax.swing.GroupLayout.DEFAULT_SIZE, 430, Short.MAX_VALUE)
+                    .addComponent(lienzoConc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -308,39 +322,7 @@ public class VEstadistica extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void IncidenciasBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_IncidenciasBActionPerformed
-        addResultado(this.resultadosSecuencial);//meter las coincidencias a cada pagina web
-        DefaultCategoryDataset barChartDatos = new DefaultCategoryDataset();// grafico de secuencial
-
-        for (PaginasWeb paginas : sitiosWebSecuencial) {
-            barChartDatos.setValue(paginas.getIncidencias(), "Sitios", paginas.getListaResultados().get(0).getTitulo());
-        }
-
-        //fin datos
-        this.tiemposPalabrasSecuencial = buscador.calcularTiempoPalabra("vida | trabajo|casa", resultadosSecuencial);
-
-        DefaultTableModel modeloTablaIncidencias = (DefaultTableModel) tablaIncidenciaSec.getModel();
-        Object[] fila = new Object[modeloTablaIncidencias.getColumnCount()];
-        int cont = 0;
-        for (EstadisticaPalabra palabra : tiemposPalabrasSecuencial) {
-            fila[0] = palabra.getPalabra();
-            fila[1] = palabra.getTiempo();
-            modeloTablaIncidencias.addRow(fila);
-            cont++;
-            System.out.println(palabra.getPalabra());
-        }
-        System.out.println(cont);
-//         Grafico
-//        titulo-titulo arriba
-        JFreeChart grafico = ChartFactory.createBarChart3D("Incidencias por sitio", "Sitios", "Numero de Incidencias", barChartDatos, PlotOrientation.HORIZONTAL, false, true, false);
-        //
-
-        CategoryPlot barChartCP = grafico.getCategoryPlot();
-        barChartCP.setRangeGridlinePaint(Color.cyan);
-
-        ChartPanel barPanel = new ChartPanel(grafico);
-        lienzo.removeAll();
-        lienzo.add(barPanel, BorderLayout.CENTER);
-        lienzo.validate();
+        graficar(false, sitiosWebSecuencial, tiemposPalabrasSecuencial, resultadosSecuencial);
 
     }//GEN-LAST:event_IncidenciasBActionPerformed
 
@@ -399,12 +381,12 @@ public class VEstadistica extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
-    private javax.swing.JPanel lienzo;
-    private javax.swing.JPanel lienzo1;
+    private javax.swing.JPanel lienzoConc;
+    private javax.swing.JPanel lienzoSec;
     private javax.swing.JScrollPane pTablaSec;
     private javax.swing.JScrollPane pTablaSec1;
+    private javax.swing.JTable tablaIncidenciaSConc;
     private javax.swing.JTable tablaIncidenciaSec;
-    private javax.swing.JTable tablaIncidenciaSec1;
     private javax.swing.JTextField tiempoCTF;
     private javax.swing.JTextField tiempoSTF;
     // End of variables declaration//GEN-END:variables

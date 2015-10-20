@@ -212,11 +212,4 @@ public class BuscadorSecuencial {
         });
     }
 
-  
-    public static void main(String[] args) throws IOException {
-        BuscadorSecuencial buscador = new BuscadorSecuencial();
-        buscador.searchManager("vida | trabajo");
-        //buscador.calcularTiempoPalabra("vida");
-    }
-
 }

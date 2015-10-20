@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.ArrayList;
 
 public class Archivo {
-    public String direccionArchivo = "/home/carlos/Escritorio/urlWebPages.txt";
+    public String direccionArchivo = "//home//manfred//NetBeansProjects//TaskforceProjects//Buscador//trunk//src//Secuencial//urls.txt";
     public ArrayList<String> leer() {
         File archivo;
         FileReader fr = null;
