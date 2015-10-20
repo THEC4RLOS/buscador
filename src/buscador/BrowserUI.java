@@ -2,17 +2,11 @@ package buscador;
 
 import Paralelo.Palabra;
 import Secuencial.Resultado;
-import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Desktop;
-import java.awt.FlowLayout;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.concurrent.ForkJoinPool;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextPane;
 import javax.swing.event.HyperlinkEvent;
 import modelo.Archivo;
 import modelo.PaginasWeb;
@@ -22,7 +16,6 @@ public class BrowserUI extends javax.swing.JFrame {
     ArrayList<String> urlWebPages;
     Archivo archivo;
     Palabra tareaPalabra;
-    ArrayList<PaginasWeb> mergedResult;
     ArrayList<Resultado> mergedResulta;
     private ArrayList<PaginasWeb> sitiosWeb;
 
