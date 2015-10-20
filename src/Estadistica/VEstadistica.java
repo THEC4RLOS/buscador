@@ -43,6 +43,7 @@ public class VEstadistica extends javax.swing.JFrame {
     public BuscadorSecuencial buscador;
 
     /// variables para estadisticas de concurrente
+    
     /**
      * Creates new form VEstadistica
      */
@@ -274,7 +275,7 @@ public class VEstadistica extends javax.swing.JFrame {
 
     private void IncidenciasBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_IncidenciasBActionPerformed
         addResultado(this.resultadosSecuencial);//meter las coincidencias a cada pagina web
-        DefaultCategoryDataset barChartDatos = new DefaultCategoryDataset();
+        DefaultCategoryDataset barChartDatos = new DefaultCategoryDataset();// grafico de secuencial
 
         for (PaginasWeb paginas : sitiosWebSecuencial) {
             barChartDatos.setValue(paginas.getIncidencias(), "Sitios", paginas.getListaResultados().get(0).getTitulo());
