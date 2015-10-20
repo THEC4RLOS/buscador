@@ -43,7 +43,6 @@ public class VEstadistica extends javax.swing.JFrame {
     public BuscadorSecuencial buscador;
 
     /// variables para estadisticas de concurrente
-    
     /**
      * Creates new form VEstadistica
      */
@@ -87,6 +86,44 @@ public class VEstadistica extends javax.swing.JFrame {
             this.sitiosWebSecuencial.add(nPaginasWeb);
             //System.out.println("initArrayPaginasWeb");
         }
+    }
+
+    public void graficar(ArrayList<PaginasWeb> sitiosWeb) {
+        addResultado(this.resultadosSecuencial);//meter las coincidencias a cada pagina web
+        DefaultCategoryDataset barChartDatos = new DefaultCategoryDataset();// grafico de secuencial
+
+        for (PaginasWeb paginas : sitiosWeb) {
+            barChartDatos.setValue(paginas.getIncidencias(), "Sitios", paginas.getListaResultados().get(0).getTitulo());
+        }
+
+        //fin datos
+        
+        //generar los datos de las tablas
+        this.tiemposPalabrasSecuencial = buscador.calcularTiempoPalabra("vida | trabajo|casa", resultadosSecuencial);
+
+        DefaultTableModel modeloTablaIncidencias = (DefaultTableModel) tablaIncidenciaSec.getModel();
+        Object[] fila = new Object[modeloTablaIncidencias.getColumnCount()];
+        int cont = 0;
+        for (EstadisticaPalabra palabra : tiemposPalabrasSecuencial) {
+            fila[0] = palabra.getPalabra();
+            fila[1] = palabra.getTiempo();
+            modeloTablaIncidencias.addRow(fila);
+            cont++;
+            System.out.println(palabra.getPalabra());
+        }
+        System.out.println(cont);
+//         Grafico
+//        titulo-titulo arriba
+        JFreeChart grafico = ChartFactory.createBarChart3D("Incidencias por sitio", "Sitios", "Numero de Incidencias", barChartDatos, PlotOrientation.HORIZONTAL, false, true, false);
+        //
+
+        CategoryPlot barChartCP = grafico.getCategoryPlot();
+        barChartCP.setRangeGridlinePaint(Color.cyan);
+
+        ChartPanel barPanel = new ChartPanel(grafico);
+        lienzo.removeAll();
+        lienzo.add(barPanel, BorderLayout.CENTER);
+        lienzo.validate();
     }
 
     /**
@@ -291,7 +328,7 @@ public class VEstadistica extends javax.swing.JFrame {
             fila[0] = palabra.getPalabra();
             fila[1] = palabra.getTiempo();
             modeloTablaIncidencias.addRow(fila);
-            cont ++;
+            cont++;
             System.out.println(palabra.getPalabra());
         }
         System.out.println(cont);
