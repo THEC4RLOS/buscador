@@ -95,6 +95,9 @@
             <Property name="editable" type="boolean" value="false"/>
             <Property name="contentType" type="java.lang.String" value="text/html" noResource="true"/>
           </Properties>
+          <Events>
+            <EventHandler event="hyperlinkUpdate" listener="javax.swing.event.HyperlinkListener" parameters="javax.swing.event.HyperlinkEvent" handler="panelResultadosHyperlinkUpdate"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

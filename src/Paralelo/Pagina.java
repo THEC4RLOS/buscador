@@ -28,7 +28,7 @@ public class Pagina extends RecursiveTask<ArrayList<Resultado>> {
     protected ArrayList<Resultado> compute() {
 
         //if work is above threshold, break tasks up into smaller tasks
-        if (this.linkPagina.size() != 1) {
+        if (this.linkPagina.size() > 1) {
 
             List<Pagina> subtasks = new ArrayList<>();
             subtasks.addAll(createSubtasks());
@@ -37,52 +37,36 @@ public class Pagina extends RecursiveTask<ArrayList<Resultado>> {
                 subtask.fork();
             }
 
-            //int result = 0;
-            Resultado result;
+            //Resultado result;
+            //ArrayList<Resultado> aregloResultadoTarea;
             for (Pagina subtask : subtasks) {
-
-                result = subtask.join().get(0);
-                if (result != null) {
-                    this.resultado.add(result);
-                }
+                this.resultado.addAll(subtask.join());
             }
-            //System.out.println("muchos Pagina Numero "+resultado.size());
+
             return this.resultado;
 
         } else {
-            ArrayList<Resultado> mergedResult = new ArrayList<>();
-            Resultado result;
+            ArrayList<Resultado> arregloResultado = new ArrayList<>();
+            Resultado resultadoTareaTexto;
 
             try {
                 Document doc = Jsoup.connect(this.linkPagina.get(0)).get();
+                int cores = Runtime.getRuntime().availableProcessors();
+
                 String titulo = doc.title();
 
                 Texto tareaTexto = new Texto(0, doc.body().text(), doc.body().text(), this.palabra);
-                int cores = Runtime.getRuntime().availableProcessors();
                 ForkJoinPool forkJoinPool = new ForkJoinPool(cores);
-                result = forkJoinPool.invoke(tareaTexto);
-                if (result.getCoincidencias() != 0){
-                    result.setTitulo(titulo);
-                    result.setUrl(this.linkPagina.get(0));
-                    /*{
-                        System.out.println("<IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII");
-                        System.out.println(result.getCoincidencias());
-                        System.out.println(result.getPalabra());
-                        System.out.println(result.getTextoCoincidencia());
-                        System.out.println(result.getTitulo());
-                        System.out.println(result.getUrl());
-                        System.out.println("IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII>");
-                    }*/
-                    //System.out.println(titulo + " "+ this.palabra + " " +mergedResult);
-                    mergedResult.add(result);
-                }
-                else
-                    mergedResult.add(null);
 
+                resultadoTareaTexto = forkJoinPool.invoke(tareaTexto);
+                //System.out.println("Titulo: "+titulo);
+                resultadoTareaTexto.setTitulo(titulo);
+                resultadoTareaTexto.setUrl(this.linkPagina.get(0));
+                //arregloResultado.add(resultadoTareaTexto);
+                arregloResultado.add(resultadoTareaTexto);
             } catch (IOException e) {
             }
-            //System.out.println("uno Pagina Numero "+mergedResult.size());
-            return mergedResult;
+            return arregloResultado;
         }
     }
 
@@ -90,8 +74,10 @@ public class Pagina extends RecursiveTask<ArrayList<Resultado>> {
         List<Pagina> subtasks = new ArrayList<>();
 
         ArrayList<String> linkPaginaAux = new ArrayList<>();
+
         linkPaginaAux.add(this.paginasWeb.get(0));
         this.paginasWeb.remove(0);
+
         Pagina subtask1 = new Pagina(this.paginasWeb, linkPaginaAux, this.palabra);
         Pagina subtask2 = new Pagina(this.paginasWeb, this.paginasWeb, this.palabra);
 
@@ -99,6 +85,18 @@ public class Pagina extends RecursiveTask<ArrayList<Resultado>> {
         subtasks.add(subtask2);
 
         return subtasks;
+    }
+
+    public void imprimir(ArrayList<Resultado> resultadoAux) {
+        for (Resultado qwerty : resultadoAux) {
+            System.out.println("<IIIIIIIIII    Pagina    IIIIIIIII");
+            System.out.println(qwerty.getCoincidencias());
+            System.out.println(qwerty.getPalabra());
+            System.out.println(qwerty.getTextoCoincidencia());
+            System.out.println(qwerty.getTitulo());
+            System.out.println(qwerty.getUrl());
+            System.out.println("IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII>");
+        }
     }
 
 }

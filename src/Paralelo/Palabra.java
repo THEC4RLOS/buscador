@@ -5,19 +5,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveTask;
-import modelo.PaginasWeb;
+//import modelo.PaginasWeb;
 
 // Busca  una palabra en cada pagina
 public class Palabra extends RecursiveTask<ArrayList<Resultado>> {
 
     private ArrayList<String> paginasWeb = null;
     private String palabra = "";
-    private ArrayList<PaginasWeb> sitiosWeb = null;
+    //private ArrayList<PaginasWeb> sitiosWeb = null;
 
     public Palabra(ArrayList<String> paginasWeb, String palabra) {
         this.paginasWeb = paginasWeb;
         this.palabra = palabra;
-        initArrayPaginasWeb();
+        //initArrayPaginasWeb();
     }
 
     @Override
@@ -25,6 +25,7 @@ public class Palabra extends RecursiveTask<ArrayList<Resultado>> {
 
         //if work is above threshold, break tasks up into smaller tasks
         if (this.palabra.contains("|")) {
+            
             List<Palabra> subtasks = new ArrayList<>();
             subtasks.addAll(createSubtasks());
 
@@ -32,24 +33,32 @@ public class Palabra extends RecursiveTask<ArrayList<Resultado>> {
                 subtask.fork();
             }
 
-            //int result = 0;
+            
             ArrayList<Resultado> result = new ArrayList<>();
+            
+            
             for (Palabra subtask : subtasks) {
                 result.addAll(subtask.join());
             }
+            
+            imprimir(result);
+            
+            
             return result;
             //System.out.println("muchos Palabra Numero "+sitiosWeb.size());
 
         } else {
-            ArrayList<Resultado> mergedResult;
+            //System.out.println(paginasWeb);
+            ArrayList<Resultado> resultadoTareaPagina;
             
             //int mergedResult;
             ArrayList<String> paginasWebAux = new ArrayList<>(this.paginasWeb);
             Pagina tareaPagina = new Pagina(paginasWebAux, paginasWebAux, this.palabra);
             int cores = Runtime.getRuntime().availableProcessors();
             ForkJoinPool forkJoinPool = new ForkJoinPool(cores);
-            mergedResult = forkJoinPool.invoke(tareaPagina);
-            return mergedResult;
+            resultadoTareaPagina = forkJoinPool.invoke(tareaPagina);
+            //imprimir(resultadoTareaPagina);
+            return resultadoTareaPagina;
             //addResultado(mergedResult);
             //System.out.println("uno Palabra Numero "+sitiosWeb.size());
             
@@ -71,11 +80,11 @@ public class Palabra extends RecursiveTask<ArrayList<Resultado>> {
 
         return subtasks;
     }
-
+/*
     /**
      * Agrega un objeto de tipo resultado al objeto Paginzas Web correcto 
      * @param resultado
-     */
+     
     public void addResultado(ArrayList<Resultado> resultado){
         for (Resultado resultadoAux: resultado){
             addResultadoAux(resultadoAux);
@@ -98,6 +107,18 @@ public class Palabra extends RecursiveTask<ArrayList<Resultado>> {
             PaginasWeb nPaginasWeb = new PaginasWeb(url, new ArrayList<Resultado>());
             this.sitiosWeb.add(nPaginasWeb);
             //System.out.println("initArrayPaginasWeb");
+        }
+    }*/
+    
+    public void imprimir(ArrayList<Resultado> resultadoAux){
+        for(Resultado qwerty: resultadoAux){
+            System.out.println("<IIIIIIIIII   Palabra   IIIIIIIII");
+            System.out.println(qwerty.getCoincidencias());
+            System.out.println(qwerty.getPalabra());
+            System.out.println(qwerty.getTextoCoincidencia());
+            System.out.println(qwerty.getTitulo());
+            System.out.println(qwerty.getUrl());
+            System.out.println("IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII>");
         }
     }
 

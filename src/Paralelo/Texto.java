@@ -40,11 +40,11 @@ public class Texto extends RecursiveTask<Resultado> {
                 //result += subtask.join();
                 resultAux = subtask.join();
                 result.setCoincidencias(result.getCoincidencias() + resultAux.getCoincidencias());
-                if (result.getTextoCoincidencia() == null) {
+                if (result.getTextoCoincidencia() == null || result.getTextoCoincidencia().equals("")) {
                     result.setTextoCoincidencia(resultAux.getTextoCoincidencia());
                 }
-
             }
+            //imprimir(result);
             return result;
 
         } else {
@@ -86,24 +86,25 @@ public class Texto extends RecursiveTask<Resultado> {
         int coincidencias = 0;
         //String extracto = null;
         //System.out.println(contenido);
-
+        int limite = 20;
         palabra = palabra.toLowerCase();
         String contenidoAux = contenido.toLowerCase();
-
+        long startTime = System.currentTimeMillis();
+        
         while (contenidoAux.contains(palabra)) {
             //System.out.println(contenido.substring(contenido.indexOf(palabra),contenido.indexOf(palabra)+palabra.length()));
-            if (this.extracto == null) {
-                if (contenidoAux.indexOf(palabra) - 40 >= 0 && contenidoAux.indexOf(palabra) + palabra.length() + 40 < contenidoAux.length()) {
+            if (this.extracto == null || this.extracto.equals("")) {
+                if (contenidoAux.indexOf(palabra) - limite >= 0 && contenidoAux.indexOf(palabra) + palabra.length() + limite < contenidoAux.length()) {
 
-                    this.extracto = "..." + contenido.substring(contenidoAux.indexOf(palabra) - 40, contenidoAux.indexOf(palabra) + palabra.length() + 40) + "...";
+                    this.extracto = "..." + contenido.substring(contenidoAux.indexOf(palabra) - limite, contenidoAux.indexOf(palabra) + palabra.length() + limite) + "...";
 
-                } else if (contenidoAux.indexOf(palabra) - 40 >= 0 && contenidoAux.indexOf(palabra) + palabra.length() + 40 >= contenidoAux.length()) {
+                } else if (contenidoAux.indexOf(palabra) - limite >= 0 && contenidoAux.indexOf(palabra) + palabra.length() + limite >= contenidoAux.length()) {
 
-                    this.extracto = "..." + contenido.substring(contenidoAux.indexOf(palabra) - 40, contenidoAux.indexOf(palabra) + palabra.length());
+                    this.extracto = "..." + contenido.substring(contenidoAux.indexOf(palabra) - limite, contenidoAux.indexOf(palabra) + palabra.length());
 
-                } else if (contenidoAux.indexOf(palabra) - 40 <= 0 && contenidoAux.indexOf(palabra) + palabra.length() + 40 <= contenidoAux.length()) {
+                } else if (contenidoAux.indexOf(palabra) - limite <= 0 && contenidoAux.indexOf(palabra) + palabra.length() + limite <= contenidoAux.length()) {
 //                    System.out.println("Aqui");
-                    this.extracto = contenido.substring(contenidoAux.indexOf(palabra), contenidoAux.indexOf(palabra) + palabra.length() + 40) + "...";
+                    this.extracto = contenido.substring(contenidoAux.indexOf(palabra), contenidoAux.indexOf(palabra) + palabra.length() + limite) + "...";
 
                 }
             }
@@ -111,11 +112,25 @@ public class Texto extends RecursiveTask<Resultado> {
             contenidoAux = contenidoAux.substring(contenidoAux.indexOf(palabra) + palabra.length(), contenidoAux.length());
             coincidencias++;
         }
+        long estimatedTime = System.currentTimeMillis() - startTime;
+        long tiempoR = estimatedTime;
         String url = "", titulo = "";
 
-        Resultado resultado = new Resultado(coincidencias, url, this.extracto, titulo, this.palabra,0l);
-        //System.out.println(this.extracto);
+        Resultado resultado = new Resultado(coincidencias, url, this.extracto, titulo, this.palabra,tiempoR);
+
         return resultado;
+    }
+    
+    public void imprimir(Resultado qwerty){
+        if (qwerty.getTextoCoincidencia() != null && !"".equals(qwerty.getTextoCoincidencia())){
+            System.out.println("<IIIIIIIIII    Texto    IIIIIIIII");
+            System.out.println(qwerty.getCoincidencias());
+            System.out.println(qwerty.getPalabra());
+            System.out.println(qwerty.getTextoCoincidencia());
+            System.out.println(qwerty.getTitulo());
+            System.out.println(qwerty.getUrl());
+            System.out.println("IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII>");}
+        
     }
 
 }

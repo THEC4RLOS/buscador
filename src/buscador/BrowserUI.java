@@ -1,16 +1,19 @@
-
 package buscador;
 
 import Paralelo.Palabra;
 import Secuencial.Resultado;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.FlowLayout;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.concurrent.ForkJoinPool;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
+import javax.swing.event.HyperlinkEvent;
 import modelo.Archivo;
 import modelo.PaginasWeb;
 
@@ -22,7 +25,7 @@ public class BrowserUI extends javax.swing.JFrame {
     ArrayList<PaginasWeb> mergedResult;
     ArrayList<Resultado> mergedResulta;
     private ArrayList<PaginasWeb> sitiosWeb;
-    
+
     /**
      * Creates new form BrowserUI
      */
@@ -37,89 +40,88 @@ public class BrowserUI extends javax.swing.JFrame {
     public void setUrlWebPages() {
         this.urlWebPages = archivo.leer();
     }
-    
-    public void metodoRaro(ArrayList<String> link, String palabra){
+
+    public void metodoRaro(ArrayList<String> link, String palabra) {
         //System.out.println(link + palabra);
         Palabra myRecursiveTask = new Palabra(link, palabra);
-        
+
         int cores = Runtime.getRuntime().availableProcessors();
         ForkJoinPool forkJoinPool = new ForkJoinPool(cores);
         this.mergedResulta = forkJoinPool.invoke(myRecursiveTask);
+        System.out.println("termino" + mergedResulta.size());
+        addResultado(mergedResulta);
         addResultado();
-        //System.out.println("termino" + mergedResult.size());
+        
     }
-    
+
     /**
-    * Agrega un objeto de tipo resultado al objeto Paginas Web correcto 
-    * @param resultado
-    */
-    public void addResultado(ArrayList<Resultado> resultado){
-        for (Resultado resultadoAux: resultado){
+     * Agrega un objeto de tipo resultado al objeto Paginas Web correcto
+     *
+     * @param resultado
+     */
+    public void addResultado(ArrayList<Resultado> resultado) {
+        for (Resultado resultadoAux : resultado) {
             addResultadoAux(resultadoAux);
             //System.out.println("addResultado");
         }
     }
-    
-    public void addResultadoAux (Resultado resultado){
-        for (PaginasWeb paginaWeb: this.sitiosWeb){
-            if (paginaWeb.getUrl().equals(resultado.getUrl())){
+
+    public void addResultadoAux(Resultado resultado) {
+        for (PaginasWeb paginaWeb : this.sitiosWeb) {
+            if (paginaWeb.getUrl().equals(resultado.getUrl())) {
                 paginaWeb.addItemListaResultados(resultado);
                 //System.out.println("addResultadoAux");                
             }
         }
     }
-    
-    public final void initArrayPaginasWeb(){
+
+    public final void initArrayPaginasWeb() {
         this.sitiosWeb = new ArrayList<>();
-        for(String url: urlWebPages){
+        for (String url : urlWebPages) {
             PaginasWeb nPaginasWeb = new PaginasWeb(url, new ArrayList<Resultado>());
             this.sitiosWeb.add(nPaginasWeb);
             //System.out.println("initArrayPaginasWeb");
         }
     }
-    
-    public void addResultado(){
-        String resultado;
-        
-        for (PaginasWeb paw: mergedResult){
-            System.out.println("-------------------------");            
-            String url =paw.getUrl();
-            String titulo="";
-            String extracto = "";
-            
-            for (Resultado pawq: paw.getListaResultados()){
-                titulo = pawq.getTitulo();
-                if(pawq.getTextoCoincidencia()!=null)
-                    extracto += pawq.getTextoCoincidencia();
+
+    public void addResultado() {
+        String resultado = "";
+        panelResultados.setText("");
+        String url = "";
+        String titulo = "";
+        String extracto = "";
+        boolean imprimir = false;
+        for (PaginasWeb resultadoBusqueda : sitiosWeb) {
+            for (Resultado resultadoPalabra : resultadoBusqueda.getListaResultados()) {
+                if (resultadoPalabra.getCoincidencias() != 0) {
+                    imprimir = true;
+                    url = resultadoPalabra.getUrl();
+                    titulo = resultadoPalabra.getTitulo();
+                    extracto = resultadoPalabra.getTextoCoincidencia();
+                }
             }
-            System.out.println("Titulo: "+titulo);
-            System.out.println("Url: "+url);
-            System.out.println("Extracto: "+extracto);
-            System.out.println("-------------------------");
-            //resultado = panelResultados.getText();
-            //titulo = "<h1>"+titulo+"<h1/><br>";
-            //url = "<a href='"+url+ "" +"'>"+url+"<a/><br>";
-            //extracto = "<p>"+extracto+"<p/><br><br>";
-            //resultado += titulo + url + extracto;
-            //System.out.println(resultado);
-            //panelResultados.setText(resultado);
         }
+        String resul = "";
+        if (imprimir) {
+            System.out.println("-------------------------");
+            System.out.println("Titulo: " + titulo);
+            System.out.println("Url: " + url);
+            System.out.println("Extracto: " + extracto);
+            System.out.println("-------------------------");
+
+            //resultado = panelResultados.getText();
+            titulo = "<h2>" + titulo + "<h2/><br>";
+            url = "<a href='" + url + "'>" + url + "<a/><br>";
+            extracto = "<p>" + extracto + "<p/><br><br>";
+            resul = titulo + url + extracto;
+            resultado = resultado + resul;
+            System.out.println(resultado + resul);
+
+        }
+        panelResultados.setText(resultado);
+        //panelResultados.setText();
     }
-    /*
-    private void appendToPane(JTextPane tp, String msg, Color c)
-    {
-        StyleContext sc = StyleContext.getDefaultStyleContext();
-        AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, c);
 
-        aset = sc.addAttribute(aset, StyleConstants.FontFamily, "Lucida Console");
-        aset = sc.addAttribute(aset, StyleConstants.Alignment, StyleConstants.ALIGN_JUSTIFIED);
-
-        int len = tp.getDocument().getLength();
-        tp.setCaretPosition(len);
-        tp.setCharacterAttributes(aset, false);
-        tp.replaceSelection(msg);
-    }*/
-    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -153,6 +155,11 @@ public class BrowserUI extends javax.swing.JFrame {
 
         panelResultados.setEditable(false);
         panelResultados.setContentType("text/html"); // NOI18N
+        panelResultados.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
+            public void hyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {
+                panelResultadosHyperlinkUpdate(evt);
+            }
+        });
         jScrollPane1.setViewportView(panelResultados);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -192,16 +199,25 @@ public class BrowserUI extends javax.swing.JFrame {
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
         // TODO add your handling code here:
-        
         String terminos = txtTerminos.getText();
         setUrlWebPages();
         //panelResultados.setText("<h1>hola<h1/>");
         metodoRaro(this.urlWebPages, terminos);
-        for(String link: urlWebPages){
+        for (String link : urlWebPages) {
             System.out.println(link);
         }
-        //addResultado();
     }//GEN-LAST:event_btnBuscarActionPerformed
+
+    private void panelResultadosHyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {//GEN-FIRST:event_panelResultadosHyperlinkUpdate
+        // TODO add your handling code here:
+        if (evt.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+            Desktop desktop = Desktop.getDesktop();
+            try {
+                desktop.browse(evt.getURL().toURI());
+            } catch (URISyntaxException | IOException ex) {
+            }
+        }
+    }//GEN-LAST:event_panelResultadosHyperlinkUpdate
 
     /**
      * @param args the command line arguments
