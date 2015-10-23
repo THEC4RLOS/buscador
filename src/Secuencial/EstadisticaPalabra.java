@@ -10,7 +10,7 @@ package Secuencial;
  * @author manfred
  */
 public class EstadisticaPalabra {
-    private long tiempo = 0;
+    private long tiempo = 0l;
     private String palabra;
 
 

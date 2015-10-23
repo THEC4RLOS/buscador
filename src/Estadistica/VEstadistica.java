@@ -5,6 +5,7 @@
  */
 package Estadistica;
 
+import Paralelo.Palabra;
 import Secuencial.BuscadorSecuencial;
 import Secuencial.EstadisticaPalabra;
 import Secuencial.Resultado;
@@ -29,76 +30,43 @@ import org.jfree.data.category.DefaultCategoryDataset;
  * @author manfred
  */
 public class VEstadistica extends javax.swing.JFrame {
-    public BuscadorSecuencial buscador;
-    Archivo archivo;
-    ArrayList<String> urlWebPages;
+
+    public long tiempoSec;// tiempo total de la busqueda secuencial
+    public long tiempoConc;// tiempo total de la busqueda concurrente
+    
+    
 
     ///variables para estadisticas de secuencial
     public ArrayList<Resultado> resultadosSecuencial;
     public ArrayList<EstadisticaPalabra> tiemposPalabrasSecuencial = new ArrayList<>();
-    ArrayList<PaginasWeb> sitiosWebSecuencial;    
+    public ArrayList<PaginasWeb> sitiosWebSecuencial;
     /// variables para estadisticas de concurrente
 
     ///varibles concurrente
-    ArrayList<Resultado> mergedResulta;
-    ArrayList<PaginasWeb> sitiosWebConcurrente;
+    public ArrayList<Resultado> mergedResulta;
+    public ArrayList<PaginasWeb> sitiosWebConcurrente;
     public ArrayList<EstadisticaPalabra> tiemposPalabrasConcurrente = new ArrayList<>();
     ///
 
     /**
      * Creates new form VEstadistica
      */
-    public VEstadistica() throws IOException {                
-        
-        
-        this.resultadosSecuencial = buscador.resultados;//BORAR
-        this.urlWebPages = archivo.leer();// inicializar URLS BORRAR
-        initArrayPaginasWeb();//inicializar el arreglo de paginas web
+    public VEstadistica() throws IOException {
+
         initComponents();
-        tiempoSTF.setText(Long.toString(buscador.tiempo));
-    }
-
-    /**
-     * Agrega un objeto de tipo resultado al objeto Paginas Web correcto
-     *
-     * @param resultado
-     */
-    public void addResultado(ArrayList<Resultado> resultado) {
-        for (Resultado resultadoAux : resultado) {
-            addResultadoAux(resultadoAux);
-            //System.out.println("addResultado");
-        }
-    }
-
-    public void addResultadoAux(Resultado resultado) {
-        for (PaginasWeb paginaWeb : this.sitiosWebSecuencial) {
-            if (paginaWeb.getUrl().equals(resultado.getUrl())) {
-                paginaWeb.addItemListaResultados(resultado);
-                paginaWeb.setIncidencias(paginaWeb.getIncidencias() + resultado.getCoincidencias());//sumar las coincidencias a la pagina
-            }
-        }
-    }
-
-    public final void initArrayPaginasWeb() {
-        this.sitiosWebSecuencial = new ArrayList<>();
-        for (String url : urlWebPages) {
-            PaginasWeb nPaginasWeb = new PaginasWeb(url, new ArrayList<Resultado>());
-            this.sitiosWebSecuencial.add(nPaginasWeb);
-            //System.out.println("initArrayPaginasWeb");
-        }
+        tiempoSTF.setText(Long.toString(tiempoSec));
+        tiempoCTF.setText(Long.toString(tiempoConc));
     }
 
     public void graficar(boolean isConcurrente, ArrayList<PaginasWeb> sitiosWeb, ArrayList<EstadisticaPalabra> tiemposPalabras, ArrayList<Resultado> resultados) {
-        addResultado(this.resultadosSecuencial);//meter las coincidencias a cada pagina web
+
         DefaultCategoryDataset barChartDatos = new DefaultCategoryDataset();// grafico de secuencial
 
         for (PaginasWeb paginas : sitiosWeb) {
             barChartDatos.setValue(paginas.getIncidencias(), "Sitios", paginas.getListaResultados().get(0).getTitulo());
         }
 
-        //fin datos
         //generar los datos de las tablas
-        tiemposPalabras = buscador.calcularTiempoPalabra("vida | trabajo|casa", resultados);
         DefaultTableModel modeloTablaIncidencias;
         if (isConcurrente == false) {
             modeloTablaIncidencias = (DefaultTableModel) tablaIncidenciaSec.getModel();
@@ -323,6 +291,7 @@ public class VEstadistica extends javax.swing.JFrame {
 
     private void IncidenciasBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_IncidenciasBActionPerformed
         graficar(false, sitiosWebSecuencial, tiemposPalabrasSecuencial, resultadosSecuencial);
+        graficar(true, sitiosWebConcurrente, tiemposPalabrasConcurrente, mergedResulta);
 
     }//GEN-LAST:event_IncidenciasBActionPerformed
 

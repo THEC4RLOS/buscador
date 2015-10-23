@@ -37,12 +37,14 @@ public class Pagina extends RecursiveTask<ArrayList<Resultado>> {
                 subtask.fork();
             }
 
-            //Resultado result;
-            //ArrayList<Resultado> aregloResultadoTarea;
+            Resultado result;
+            ArrayList<Resultado> aregloResultadoTarea;
             for (Pagina subtask : subtasks) {
-                this.resultado.addAll(subtask.join());
+                aregloResultadoTarea = subtask.join();
+                result = aregloResultadoTarea.get(0);
+                this.resultado.addAll(aregloResultadoTarea);
             }
-
+            imprimir(resultado);
             return this.resultado;
 
         } else {
@@ -55,7 +57,7 @@ public class Pagina extends RecursiveTask<ArrayList<Resultado>> {
 
                 String titulo = doc.title();
 
-                Texto tareaTexto = new Texto(0, doc.body().text(), doc.body().text(), this.palabra);
+                Texto tareaTexto = new Texto(0, doc.text(), doc.text(), this.palabra);
                 ForkJoinPool forkJoinPool = new ForkJoinPool(cores);
 
                 resultadoTareaTexto = forkJoinPool.invoke(tareaTexto);
@@ -95,6 +97,7 @@ public class Pagina extends RecursiveTask<ArrayList<Resultado>> {
             System.out.println(qwerty.getTextoCoincidencia());
             System.out.println(qwerty.getTitulo());
             System.out.println(qwerty.getUrl());
+            System.out.println(qwerty.getTiempo());
             System.out.println("IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII>");
         }
     }

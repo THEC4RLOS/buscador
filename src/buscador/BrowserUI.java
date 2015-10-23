@@ -1,5 +1,6 @@
 package buscador;
 
+import Estadistica.VEstadistica;
 import Paralelo.Palabra;
 import Secuencial.BuscadorSecuencial;
 import Secuencial.EstadisticaPalabra;
@@ -17,6 +18,9 @@ import modelo.PaginasWeb;
 
 public class BrowserUI extends javax.swing.JFrame {
 
+    public long tiempoSec;// tiempo total de la busqueda secuencial
+    public long tiempoConc;// tiempo total de la busqueda concurrente
+
     boolean modo = false;// true es paralelo
 
     ArrayList<String> urlWebPages;
@@ -25,7 +29,7 @@ public class BrowserUI extends javax.swing.JFrame {
     ArrayList<Resultado> mergedResulta;
     ArrayList<PaginasWeb> sitiosWebConcurrente;
     public ArrayList<EstadisticaPalabra> tiemposPalabrasConcurrente = new ArrayList<>();
-    
+
     //variables para secuencial
     BuscadorSecuencial buscador;
     ArrayList<PaginasWeb> sitiosWebSecuencial;
@@ -53,20 +57,26 @@ public class BrowserUI extends javax.swing.JFrame {
 
         int cores = Runtime.getRuntime().availableProcessors();
         ForkJoinPool forkJoinPool = new ForkJoinPool(cores);
+        long startTime = System.currentTimeMillis();// empieza el tiempo de busqueda de los terminos
         this.mergedResulta = forkJoinPool.invoke(myRecursiveTask);
-        System.out.println("termino" + mergedResulta.size());        
+        long estimatedTime = System.currentTimeMillis() - startTime;// finaliza el tiempo de busqueda de los terminos        
+        this.tiempoConc = estimatedTime;
+        System.out.println("termino" + mergedResulta.size());
         addResultado(mergedResulta, true);
         addResultado(true);
-        buscador.calcularTiempoPalabra(palabra, mergedResulta);
+        this.tiemposPalabrasConcurrente = this.calcularTiempoPalabra(palabra, mergedResulta);
 
     }
 
     public void ejecutarSecuencial(String terminos) throws IOException {
         this.buscador = new BuscadorSecuencial();
+        long startTime = System.currentTimeMillis();// empieza el tiempo de busqueda de los terminos
         this.resultadosSecuencial = buscador.searchManager(terminos);
+        long estimatedTime = System.currentTimeMillis() - startTime;// finaliza el tiempo de busqueda de los terminos
+        this.tiempoSec = estimatedTime;
         addResultado(this.resultadosSecuencial, false);
         addResultado(false);
-        buscador.calcularTiempoPalabra(terminos, this.resultadosSecuencial);
+        this.tiemposPalabrasSecuencial = this.calcularTiempoPalabra(terminos, this.resultadosSecuencial);
     }
 
     /**
@@ -120,11 +130,11 @@ public class BrowserUI extends javax.swing.JFrame {
             }
             String resul = "";
             if (imprimir) {
-                System.out.println("-------------------------");
-                System.out.println("Titulo: " + titulo);
-                System.out.println("Url: " + url);
-                System.out.println("Extracto: " + extracto);
-                System.out.println("-------------------------");
+//                System.out.println("-------------------------");
+//                System.out.println("Titulo: " + titulo);
+//                System.out.println("Url: " + url);
+//                System.out.println("Extracto: " + extracto);
+//                System.out.println("-------------------------");
 
                 //resultado = panelResultados.getText();
                 titulo = "<h2>" + titulo + "<h2/><br>";
@@ -150,6 +160,44 @@ public class BrowserUI extends javax.swing.JFrame {
             this.sitiosWebSecuencial.add(nPaginasWeb);
             //panelResultados.setText("<h1>hola<h1/>");
         }
+    }
+
+    /**
+     * calcula el tiempo de la coincidencia de cada palabra del termino de la
+     * busqueda es decir, el tiempo que dura la busqueda con una determinada
+     * palabra
+     *
+     * @param terminoBusqueda el termino de busqueda
+     */
+    public ArrayList<EstadisticaPalabra> calcularTiempoPalabra(String terminoBusqueda, ArrayList<Resultado> arrayResultados) {
+        //limpiar el texto de espacios y dividirlo por palabras
+        String terminoBusquedaAux = "";
+        ArrayList<EstadisticaPalabra> tiemposPalabras = new ArrayList<>();
+        for (int x = 0; x < terminoBusqueda.length(); x++) {
+            if (terminoBusqueda.charAt(x) != ' ') {
+                terminoBusquedaAux += terminoBusqueda.charAt(x);
+            }
+        }
+        terminoBusqueda = terminoBusquedaAux.replace("|", " ");
+        String[] terminos = terminoBusqueda.split("\\s");//dividir el texto en palabras
+        //
+        for (int i = 0; i < terminos.length; i++) {
+            EstadisticaPalabra palabra = new EstadisticaPalabra();
+            palabra.setPalabra(terminos[i]);
+            for (int j = 0; j < arrayResultados.size(); j++) {
+                if (arrayResultados.get(j).getCoincidencias() > 0
+                        && arrayResultados.get(j).getPalabra().equals(terminos[i])) {
+                    palabra.setTiempo(palabra.getTiempo() + arrayResultados.get(j).getTiempo());                    
+                }
+            }
+            tiemposPalabras.add(palabra);
+        }
+        for (int i = 0; i < tiemposPalabras.size(); i++) {
+            System.out.println("------------------dsdsdfsd-------");
+            System.out.println("Palabra: " + tiemposPalabras.get(i).getPalabra()
+                    + "\nTiempo: " + tiemposPalabras.get(i).getTiempo() + " milisegungos");
+        }
+        return tiemposPalabras;
     }
 
     /**
@@ -278,15 +326,30 @@ public class BrowserUI extends javax.swing.JFrame {
         if (modo == false) {
             modo = true;
             this.btnModo.setText("Concurrente");
-        }
-        else{
+        } else {
             modo = false;
             this.btnModo.setText("Secuencial");
         }
     }//GEN-LAST:event_btnModoActionPerformed
 
     private void btnEstadisticasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEstadisticasActionPerformed
-        
+        try {
+            VEstadistica ventanaEstadisticas = new VEstadistica();
+            ventanaEstadisticas.resultadosSecuencial = this.resultadosSecuencial;// resultados
+            ventanaEstadisticas.mergedResulta = this.mergedResulta;//resultados
+            ventanaEstadisticas.sitiosWebSecuencial = this.sitiosWebSecuencial;
+            ventanaEstadisticas.sitiosWebConcurrente = this.sitiosWebConcurrente;
+            ventanaEstadisticas.tiemposPalabrasSecuencial = this.tiemposPalabrasSecuencial;
+            ventanaEstadisticas.tiemposPalabrasConcurrente = this.tiemposPalabrasConcurrente;
+            ventanaEstadisticas.tiempoSec = this.tiempoSec;
+            ventanaEstadisticas.tiempoConc = this.tiempoConc;
+
+            ventanaEstadisticas.setVisible(true);
+
+        } catch (IOException ex) {
+            Logger.getLogger(BrowserUI.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("no se mostró");
+        }
     }//GEN-LAST:event_btnEstadisticasActionPerformed
 
     /**

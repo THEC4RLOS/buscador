@@ -32,7 +32,7 @@ public class BuscadorSecuencial {
             
     ArrayList<String> urlWebPages;
     public ArrayList<Resultado> resultados = new ArrayList();//resultados de las busquedas    
-    public long tiempo;// tiempo total de la busqueda
+    
 
     /**
      * Función para buscar las coincidencias de una palabra en el contenido de
@@ -88,9 +88,12 @@ public class BuscadorSecuencial {
         this.archivo.direccionArchivo="//home//manfred//NetBeansProjects//TaskforceProjects//Buscador//trunk//src//Secuencial//urls.txt";                        
       //fin de borrar
         this.urlWebPages = archivo.leer();
+        
         if (urlWebPages != null) {
             for (int i = 0; i < urlWebPages.size(); i++) {
-                String contenido = getContenidoHTML(urlWebPages.get(i));
+                
+                Document doc = Jsoup.connect(this.urlWebPages.get(i)).get();
+                String contenido = doc.body().text();
               //  System.out.println(urls[i]);
                 Resultado resultado = buscarCoincidencia(palabra, contenido, urlWebPages.get(i));
                 this.resultados.add(resultado);
@@ -143,14 +146,13 @@ public class BuscadorSecuencial {
         String[] terminos = terminoBusqueda.split("\\s");//dividir el texto en palabras
         //
         String palabra;
-        long startTime = System.currentTimeMillis();// empieza el tiempo de busqueda de los terminos
+        
         for (int i = 0; i < terminos.length; i++) {
             palabra = terminos[i];
             System.out.println(palabra);
             this.buscar(palabra);
         }
-        long estimatedTime = System.currentTimeMillis() - startTime;// finaliza el tiempo de busqueda de los terminos
-        this.tiempo = estimatedTime;
+        
         
         
         /////////////////////////BORAR////////////////////////////////////
@@ -160,48 +162,11 @@ public class BuscadorSecuencial {
                 System.out.println("----------------------------------------------------------------");
             }
         }        
-        System.out.println("Tiempo total: " + this.tiempo);
+        
         /////////////////////////BORAR////////////////////////////////////
         return this.resultados;        
     }
 
-    /**
-     * calcula el tiempo de la coincidencia de cada palabra del termino de la
-     * busqueda es decir, el tiempo que dura la busqueda con una determinada
-     * palabra
-     *
-     * @param terminoBusqueda el termino de busqueda
-     */
-    public ArrayList<EstadisticaPalabra> calcularTiempoPalabra(String terminoBusqueda,ArrayList<Resultado> arrayResultados) {
-        //limpiar el texto de espacios y dividirlo por palabras
-        String terminoBusquedaAux = "";
-        ArrayList<EstadisticaPalabra> tiemposPalabras = new ArrayList<>();
-        for (int x = 0; x < terminoBusqueda.length(); x++) {
-            if (terminoBusqueda.charAt(x) != ' ') {
-                terminoBusquedaAux += terminoBusqueda.charAt(x);
-            }
-        }
-        terminoBusqueda = terminoBusquedaAux.replace("|", " ");
-        String[] terminos = terminoBusqueda.split("\\s");//dividir el texto en palabras
-        //
-        for (int i = 0; i < terminos.length; i++) {
-            EstadisticaPalabra palabra = new EstadisticaPalabra();
-            palabra.setPalabra(terminos[i]);
-            for (int j = 0; j < arrayResultados.size(); j++) {
-                if (arrayResultados.get(j).getCoincidencias() > 0
-                        && arrayResultados.get(j).getPalabra().equals(terminos[i])) {
-                    palabra.setTiempo(palabra.getTiempo() + arrayResultados.get(j).getTiempo());
-                }
-            }
-            tiemposPalabras.add(palabra);
-        }
-        for (int i = 0; i < tiemposPalabras.size(); i++) {
-            System.out.println("-------------------------");
-            System.out.println("Palabra: " + tiemposPalabras.get(i).getPalabra()
-                    + "\nTiempo: " + tiemposPalabras.get(i).getTiempo() + " milisegungos");
-        }
-        return tiemposPalabras;        
-    }
 
     public void ordenar() {
         Collections.sort(this.resultados, new Comparator<Resultado>() {

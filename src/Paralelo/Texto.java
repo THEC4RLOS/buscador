@@ -39,7 +39,9 @@ public class Texto extends RecursiveTask<Resultado> {
             for (Texto subtask : subtasks) {
                 //result += subtask.join();
                 resultAux = subtask.join();
+                
                 result.setCoincidencias(result.getCoincidencias() + resultAux.getCoincidencias());
+                
                 result.setTiempo(result.getTiempo()+resultAux.getTiempo());
                 if (result.getTextoCoincidencia() == null || result.getTextoCoincidencia().equals("")) {
                     result.setTextoCoincidencia(resultAux.getTextoCoincidencia());
@@ -118,7 +120,7 @@ public class Texto extends RecursiveTask<Resultado> {
         String url = "", titulo = "";
 
         Resultado resultado = new Resultado(coincidencias, url, this.extracto, titulo, this.palabra,tiempoR);
-
+        coincidencias = 0;
         return resultado;
     }
     
