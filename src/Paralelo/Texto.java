@@ -115,11 +115,15 @@ public class Texto extends RecursiveTask<Resultado> {
             contenidoAux = contenidoAux.substring(contenidoAux.indexOf(palabra) + palabra.length(), contenidoAux.length());
             coincidencias++;
         }
-        long estimatedTime = System.currentTimeMillis() - startTime;
+        System.out.println(startTime);
+        System.out.println("final: "+System.currentTimeMillis());
+        long estimatedTime = System.currentTimeMillis() - startTime;                
         long tiempoR = estimatedTime;
+        System.out.println("Estimado: "+tiempoR);
+        
         String url = "", titulo = "";
 
-        Resultado resultado = new Resultado(coincidencias, url, this.extracto, titulo, this.palabra,tiempoR);
+        Resultado resultado = new Resultado(coincidencias, url, this.extracto, titulo, this.palabra,  tiempoR);
         coincidencias = 0;
         return resultado;
     }

@@ -57,7 +57,7 @@ public class Pagina extends RecursiveTask<ArrayList<Resultado>> {
 
                 String titulo = doc.title();
 
-                Texto tareaTexto = new Texto(0, doc.text(), doc.text(), this.palabra);
+                Texto tareaTexto = new Texto(0, doc.body().text(), doc.body().text(), this.palabra);
                 ForkJoinPool forkJoinPool = new ForkJoinPool(cores);
 
                 resultadoTareaTexto = forkJoinPool.invoke(tareaTexto);
@@ -97,7 +97,6 @@ public class Pagina extends RecursiveTask<ArrayList<Resultado>> {
             System.out.println(qwerty.getTextoCoincidencia());
             System.out.println(qwerty.getTitulo());
             System.out.println(qwerty.getUrl());
-            System.out.println(qwerty.getTiempo());
             System.out.println("IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII>");
         }
     }
