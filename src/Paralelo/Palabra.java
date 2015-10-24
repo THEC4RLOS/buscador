@@ -38,6 +38,7 @@ public class Palabra extends RecursiveTask<ArrayList<Resultado>> {
             
             
             for (Palabra subtask : subtasks) {
+                
                 result.addAll(subtask.join());
             }
             

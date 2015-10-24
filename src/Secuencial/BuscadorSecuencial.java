@@ -20,16 +20,17 @@ import java.util.Comparator;
 import java.util.Iterator;
 import modelo.Archivo;
 import modelo.PaginasWeb;
+import org.hyperic.sigar.SigarException;
 
 /**
  *
  * @author manfred
  */
-public class BuscadorSecuencial {    
-    public Archivo archivo =  new Archivo();/////////////////////Borrar cuando se pegue todo            
+public class BuscadorSecuencial {
+
+    public Archivo archivo = new Archivo();/////////////////////Borrar cuando se pegue todo            
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            
-            
+
     ArrayList<String> urlWebPages;
     public ArrayList<Resultado> resultados = new ArrayList();//resultados de las busquedas    
     
@@ -43,14 +44,18 @@ public class BuscadorSecuencial {
      * @param url
      * @return la cantidad de coincidencias encontradas
      */
-    public Resultado buscarCoincidencia(String palabra, String contenido, String url) throws IOException {
+    public Resultado buscarCoincidencia(String palabra, String contenido, String url) throws IOException, SigarException {
         int coincidencias = 0;
         String texto = null;
         palabra = palabra.toLowerCase();
         String contenidoAux = contenido.toLowerCase();
 
         long startTime = System.currentTimeMillis();
+        Document doc = Jsoup.connect(url).get();
 
+        String titulo = doc.title();
+        Resultado resultado = new Resultado(coincidencias, url, texto, titulo, palabra, 0l);
+        
         while (contenidoAux.contains(palabra)) {
             //System.out.println(contenido.substring(contenido.indexOf(palabra),contenido.indexOf(palabra)+palabra.length()));
             if (texto == null) {
@@ -70,23 +75,28 @@ public class BuscadorSecuencial {
             contenido = contenido.substring(contenidoAux.indexOf(palabra) + palabra.length(), contenidoAux.length());
             contenidoAux = contenidoAux.substring(contenidoAux.indexOf(palabra) + palabra.length(), contenidoAux.length());
             coincidencias++;
+            resultado.infoCPUs.guardarUsoProcesadores();
         }
         long estimatedTime = System.currentTimeMillis() - startTime;
         long tiempoR = estimatedTime;
         //System.out.println("correcto");
-        Document doc = Jsoup.connect(url).get();
         
-        String titulo = doc.title();        
-        Resultado resultado = new Resultado(coincidencias, url, texto, titulo, palabra, tiempoR);
+
+        {   //Resultado resultado = new Resultado(coincidencias, url, this.extracto, titulo, this.palabra,0l);
+            resultado.setCoincidencias(coincidencias);
+            resultado.setTextoCoincidencia(texto);
+            resultado.setPalabra(palabra);
+            resultado.setTiempo(tiempoR);
+        }
         
         return resultado;
     }
-   
 
-    public void buscar(String palabra) throws IOException {
-      //borrar
-        this.archivo.direccionArchivo="//home//manfred//NetBeansProjects//TaskforceProjects//Buscador//trunk//src//Secuencial//urls.txt";                        
-      //fin de borrar
+    public void buscar(String palabra) throws IOException, SigarException {
+        //borrar
+        this.archivo.direccionArchivo = "//home//manfred//NetBeansProjects//TaskforceProjects//Buscador//trunk//src//Secuencial//urls.txt";
+        this.archivo.direccionArchivo = "/home/carlos/Escritorio/urlWebPages.txt";
+        //fin de borrar
         this.urlWebPages = archivo.leer();
         
         if (urlWebPages != null) {
@@ -94,7 +104,7 @@ public class BuscadorSecuencial {
                 
                 Document doc = Jsoup.connect(this.urlWebPages.get(i)).get();
                 String contenido = doc.body().text();
-              //  System.out.println(urls[i]);
+                //  System.out.println(urls[i]);
                 Resultado resultado = buscarCoincidencia(palabra, contenido, urlWebPages.get(i));
                 this.resultados.add(resultado);
                 //ordenar();
@@ -134,7 +144,7 @@ public class BuscadorSecuencial {
      *
      * @param terminoBusqueda termino o terminos a buscar
      */
-    public  ArrayList<Resultado> searchManager(String terminoBusqueda) throws IOException {
+    public ArrayList<Resultado> searchManager(String terminoBusqueda) throws IOException, SigarException {
         //limpiar el texto de espacios y dividirlo por palabras
         String terminoBusquedaAux = "";
         for (int x = 0; x < terminoBusqueda.length(); x++) {
@@ -153,20 +163,56 @@ public class BuscadorSecuencial {
             this.buscar(palabra);
         }
         
-        
-        
+
         /////////////////////////BORAR////////////////////////////////////
         for (int i = 0; i < this.resultados.size(); i++) {
             if (this.resultados.get(i).getCoincidencias() > 0) {
                 System.out.println(this.resultados.get(i).descripcion());
                 System.out.println("----------------------------------------------------------------");
             }
-        }        
+        }
         
         /////////////////////////BORAR////////////////////////////////////
-        return this.resultados;        
+        return this.resultados;
     }
 
+    /**
+     * calcula el tiempo de la coincidencia de cada palabra del termino de la
+     * busqueda es decir, el tiempo que dura la busqueda con una determinada
+     * palabra
+     *
+     * @param terminoBusqueda el termino de busqueda
+     */
+    public ArrayList<EstadisticaPalabra> calcularTiempoPalabra(String terminoBusqueda, ArrayList<Resultado> arrayResultados) {
+        //limpiar el texto de espacios y dividirlo por palabras
+        String terminoBusquedaAux = "";
+        ArrayList<EstadisticaPalabra> tiemposPalabras = new ArrayList<>();
+        for (int x = 0; x < terminoBusqueda.length(); x++) {
+            if (terminoBusqueda.charAt(x) != ' ') {
+                terminoBusquedaAux += terminoBusqueda.charAt(x);
+            }
+        }
+        terminoBusqueda = terminoBusquedaAux.replace("|", " ");
+        String[] terminos = terminoBusqueda.split("\\s");//dividir el texto en palabras
+        //
+        for (int i = 0; i < terminos.length; i++) {
+            EstadisticaPalabra palabra = new EstadisticaPalabra();
+            palabra.setPalabra(terminos[i]);
+            for (int j = 0; j < arrayResultados.size(); j++) {
+                if (arrayResultados.get(j).getCoincidencias() > 0
+                        && arrayResultados.get(j).getPalabra().equals(terminos[i])) {
+                    palabra.setTiempo(palabra.getTiempo() + arrayResultados.get(j).getTiempo());
+                }
+            }
+            tiemposPalabras.add(palabra);
+        }
+        for (int i = 0; i < tiemposPalabras.size(); i++) {
+            System.out.println("-------------------------");
+            System.out.println("Palabra: " + tiemposPalabras.get(i).getPalabra()
+                    + "\nTiempo: " + tiemposPalabras.get(i).getTiempo() + " milisegungos");
+        }
+        return tiemposPalabras;
+    }
 
     public void ordenar() {
         Collections.sort(this.resultados, new Comparator<Resultado>() {

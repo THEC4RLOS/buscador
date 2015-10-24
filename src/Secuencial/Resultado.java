@@ -1,6 +1,8 @@
 
 package Secuencial;
 
+import modelo.CPUInfo;
+
 public class Resultado {
     private int coincidencias;
     private String url;
@@ -8,6 +10,7 @@ public class Resultado {
     private String Titulo;
     private String palabra;
     private long tiempo;
+    public CPUInfo infoCPUs;
 
     public long getTiempo() {
         return tiempo;
@@ -24,6 +27,7 @@ public class Resultado {
         this.Titulo = titulo;
         this.palabra = palabra;
         this.tiempo = tiempo;
+        this.infoCPUs = new CPUInfo();
     }
     
     public String descripcion(){

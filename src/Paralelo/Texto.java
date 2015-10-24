@@ -4,6 +4,9 @@ import Secuencial.Resultado;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.RecursiveTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.hyperic.sigar.SigarException;
 
 // Busqueda realizada en un texto de las apaciones de una palabra
 public class Texto extends RecursiveTask<Resultado> {
@@ -46,19 +49,26 @@ public class Texto extends RecursiveTask<Resultado> {
                 if (result.getTextoCoincidencia() == null || result.getTextoCoincidencia().equals("")) {
                     result.setTextoCoincidencia(resultAux.getTextoCoincidencia());
                 }
+                result.infoCPUs.concatArreglo(resultAux.infoCPUs.getUsoProcesadores());
+                //result.infoCPUs.imprimirUsoProcesadores();
             }
             //imprimir(result);
             return result;
 
         } else {
-            /*
-             int contador=0;
-             while (textoAux.contains(palabra)) {
-             textoAux = textoAux.substring(textoAux.indexOf(palabra)+palabra.length(),textoAux.length());
-             contador++; 
-             }
-             return contador;*/
-            return buscarCoincidencia(palabra, textoAux);
+            try {
+                /*
+                int contador=0;
+                while (textoAux.contains(palabra)) {
+                textoAux = textoAux.substring(textoAux.indexOf(palabra)+palabra.length(),textoAux.length());
+                contador++;
+                }
+                return contador;*/
+                return buscarCoincidencia(palabra, textoAux);
+            } catch (SigarException ex) {
+                Logger.getLogger(Texto.class.getName()).log(Level.SEVERE, null, ex);
+                return null;
+            }
         }
     }
 
@@ -84,15 +94,19 @@ public class Texto extends RecursiveTask<Resultado> {
      * @param palabra la palabra a buscar en el contenido
      * @param contenido el texto de la página en el que se buscan coincidencias
      * @return la cantidad de coincidencias encontradas
+     * @throws org.hyperic.sigar.SigarException
      */
-    public Resultado buscarCoincidencia(String palabra, String contenido) {
-        int coincidencias = 0;
-        //String extracto = null;
-        //System.out.println(contenido);
-        int limite = 20;
+    public Resultado buscarCoincidencia(String palabra, String contenido) throws SigarException {
         palabra = palabra.toLowerCase();
-        String contenidoAux = contenido.toLowerCase();
+        
+        int limite = 20;
+        int coincidencias = 0;
         long startTime = System.currentTimeMillis();
+        
+        String url = "", titulo = "";
+        String contenidoAux = contenido.toLowerCase();
+        
+        Resultado resultado = new Resultado(coincidencias, url, this.extracto, titulo, this.palabra,0l);
         
         while (contenidoAux.contains(palabra)) {
             //System.out.println(contenido.substring(contenido.indexOf(palabra),contenido.indexOf(palabra)+palabra.length()));
@@ -114,17 +128,21 @@ public class Texto extends RecursiveTask<Resultado> {
             contenido = contenido.substring(contenidoAux.indexOf(palabra) + palabra.length(), contenidoAux.length());
             contenidoAux = contenidoAux.substring(contenidoAux.indexOf(palabra) + palabra.length(), contenidoAux.length());
             coincidencias++;
+            //resultado.infoCPUs.guardarUsoProcesadores();
         }
         System.out.println(startTime);
         System.out.println("final: "+System.currentTimeMillis());
         long estimatedTime = System.currentTimeMillis() - startTime;                
         long tiempoR = estimatedTime;
-        System.out.println("Estimado: "+tiempoR);
         
-        String url = "", titulo = "";
-
-        Resultado resultado = new Resultado(coincidencias, url, this.extracto, titulo, this.palabra,  tiempoR);
-        coincidencias = 0;
+        // Modificacion del objeto tipo Resultado
+        {   //Resultado resultado = new Resultado(coincidencias, url, this.extracto, titulo, this.palabra,0l);
+            resultado.setCoincidencias(coincidencias);
+            resultado.setTextoCoincidencia(this.extracto);
+            resultado.setPalabra(this.palabra);
+            resultado.setTiempo(tiempoR);
+        }
+        
         return resultado;
     }
     
@@ -137,7 +155,6 @@ public class Texto extends RecursiveTask<Resultado> {
             System.out.println(qwerty.getTitulo());
             System.out.println(qwerty.getUrl());
             System.out.println("IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII>");}
-        
     }
 
 }

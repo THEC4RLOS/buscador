@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 import javax.swing.event.HyperlinkEvent;
 import modelo.Archivo;
 import modelo.PaginasWeb;
+import org.hyperic.sigar.SigarException;
 
 public class BrowserUI extends javax.swing.JFrame {
 
@@ -65,10 +66,9 @@ public class BrowserUI extends javax.swing.JFrame {
         addResultado(mergedResulta, true);
         addResultado(true);
         this.tiemposPalabrasConcurrente = this.calcularTiempoPalabra(palabra, mergedResulta);
-
     }
 
-    public void ejecutarSecuencial(String terminos) throws IOException {
+    public void ejecutarSecuencial(String terminos) throws IOException, SigarException {
         this.buscador = new BuscadorSecuencial();
         long startTime = System.currentTimeMillis();// empieza el tiempo de busqueda de los terminos
         this.resultadosSecuencial = buscador.searchManager(terminos);
@@ -148,7 +148,6 @@ public class BrowserUI extends javax.swing.JFrame {
             panelResultados.setText(resultado);
         }
 
-        //panelResultados.setText();
     }
 
     public final void initArrayPaginasWeb() {
@@ -295,6 +294,7 @@ public class BrowserUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
+        System.out.println("Modo:" + modo + "(true:paralelo, false:secuencial)");
         String terminos = txtTerminos.getText();
         setUrlWebPages();
         //panelResultados.setText("<h1>hola<h1/>");
@@ -304,6 +304,8 @@ public class BrowserUI extends javax.swing.JFrame {
             try {
                 ejecutarSecuencial(terminos);
             } catch (IOException ex) {
+                Logger.getLogger(BrowserUI.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SigarException ex) {
                 Logger.getLogger(BrowserUI.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
