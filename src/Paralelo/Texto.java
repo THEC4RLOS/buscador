@@ -128,10 +128,10 @@ public class Texto extends RecursiveTask<Resultado> {
             contenido = contenido.substring(contenidoAux.indexOf(palabra) + palabra.length(), contenidoAux.length());
             contenidoAux = contenidoAux.substring(contenidoAux.indexOf(palabra) + palabra.length(), contenidoAux.length());
             coincidencias++;
-            //resultado.infoCPUs.guardarUsoProcesadores();
+            resultado.infoCPUs.guardarUsoProcesadores();
         }
-        System.out.println(startTime);
-        System.out.println("final: "+System.currentTimeMillis());
+        //System.out.println(startTime);
+        //System.out.println("final: "+System.currentTimeMillis());
         long estimatedTime = System.currentTimeMillis() - startTime;                
         long tiempoR = estimatedTime;
         

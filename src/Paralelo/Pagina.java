@@ -44,7 +44,7 @@ public class Pagina extends RecursiveTask<ArrayList<Resultado>> {
                 result = aregloResultadoTarea.get(0);
                 this.resultado.addAll(aregloResultadoTarea);
             }
-            imprimir(resultado);
+            //imprimir(resultado);
             return this.resultado;
 
         } else {

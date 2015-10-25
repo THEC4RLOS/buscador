@@ -15,8 +15,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
 import modelo.Archivo;
+import modelo.CPU;
 import modelo.PaginasWeb;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -24,6 +26,9 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 
 /**
  *
@@ -33,21 +38,21 @@ public class VEstadistica extends javax.swing.JFrame {
 
     public long tiempoSec;// tiempo total de la busqueda secuencial
     public long tiempoConc;// tiempo total de la busqueda concurrente
-    
-    
+    public ArrayList<String> paginaWeb;
 
     ///variables para estadisticas de secuencial
     public ArrayList<Resultado> resultadosSecuencial;
     public ArrayList<EstadisticaPalabra> tiemposPalabrasSecuencial = new ArrayList<>();
     public ArrayList<PaginasWeb> sitiosWebSecuencial;
-    /// variables para estadisticas de concurrente
+    public ArrayList<CPU> estadisticaCPULogicoSecuencial;
 
-    ///varibles concurrente
+    /// variables para estadisticas de concurrente
     public ArrayList<Resultado> mergedResulta;
     public ArrayList<PaginasWeb> sitiosWebConcurrente;
     public ArrayList<EstadisticaPalabra> tiemposPalabrasConcurrente = new ArrayList<>();
-    ///
+    public ArrayList<CPU> estadisticaCPULogicoConcurrente;
 
+    ///
     /**
      * Creates new form VEstadistica
      */
@@ -56,6 +61,7 @@ public class VEstadistica extends javax.swing.JFrame {
         initComponents();
         tiempoSTF.setText(Long.toString(tiempoSec));
         tiempoCTF.setText(Long.toString(tiempoConc));
+        txtPaginasWeb.setVisible(false);
     }
 
     public void graficar(boolean isConcurrente, ArrayList<PaginasWeb> sitiosWeb, ArrayList<EstadisticaPalabra> tiemposPalabras, ArrayList<Resultado> resultados) {
@@ -105,6 +111,45 @@ public class VEstadistica extends javax.swing.JFrame {
         }
     }
 
+    public XYDataset createDataset(ArrayList<CPU> estadisticaModo) {
+
+        XYSeriesCollection dataset = new XYSeriesCollection();
+        ArrayList<String> link = new ArrayList<>();
+
+        for (CPU estadisticaPorLink : estadisticaModo) {
+            System.out.println("link:" + estadisticaPorLink.strLink);
+            link.add(estadisticaPorLink.strLink);
+            //int cpu : estadisticaPorLink.porcentajeCpus
+            for (int i = 0; i < estadisticaPorLink.porcentajeCpus.size(); i++) {
+                XYSeries series = new XYSeries("CPU " + i);
+                System.out.println("CPU " + i + " Numero link: " + estadisticaPorLink.intLink + " porcentaje: " + estadisticaPorLink.porcentajeCpus.get(i));
+                series.add(estadisticaPorLink.intLink, estadisticaPorLink.porcentajeCpus.get(i));
+                if (estadisticaModo.size()<=1)
+                    series.add(2, estadisticaPorLink.porcentajeCpus.get(i));                
+                dataset.addSeries(series);
+            }
+        }
+        if (paginaWeb == null) {
+            paginaWeb = link;
+        } else if (link.size() > paginaWeb.size()) {
+            paginaWeb = link;
+        }
+        return dataset;
+    }
+
+    private JPanel createChartPanel(ArrayList<CPU> modo) {
+        String chartTitle = "CPU Logicos";
+        String xAxisLabel = "X";
+        String yAxisLabel = "Y";
+
+        XYDataset dataset = createDataset(modo);
+
+        JFreeChart chart = ChartFactory.createXYLineChart(chartTitle,
+                xAxisLabel, yAxisLabel, dataset);
+
+        return new ChartPanel(chart);
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -133,6 +178,8 @@ public class VEstadistica extends javax.swing.JFrame {
         tiempoSTF = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        txtPaginasWeb = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -144,6 +191,11 @@ public class VEstadistica extends javax.swing.JFrame {
         });
 
         CPUB.setText("CPU");
+        CPUB.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                CPUBActionPerformed(evt);
+            }
+        });
 
         lienzoSec.setBackground(new java.awt.Color(204, 204, 204));
         lienzoSec.setLayout(new java.awt.BorderLayout());
@@ -195,6 +247,10 @@ public class VEstadistica extends javax.swing.JFrame {
 
         jLabel7.setText("ms");
 
+        txtPaginasWeb.setColumns(20);
+        txtPaginasWeb.setRows(5);
+        jScrollPane1.setViewportView(txtPaginasWeb);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -213,11 +269,6 @@ public class VEstadistica extends javax.swing.JFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel3)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGap(35, 35, 35)
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                            .addComponent(IncidenciasB)
-                                            .addComponent(CPUB, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                     .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addGroup(layout.createSequentialGroup()
@@ -231,7 +282,12 @@ public class VEstadistica extends javax.swing.JFrame {
                                         .addGap(3, 3, 3)
                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                             .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(jLabel7))))
+                                            .addComponent(jLabel7)))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(35, 35, 35)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(CPUB, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(IncidenciasB, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE))))
                                 .addGap(216, 216, 216))
                             .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -240,6 +296,8 @@ public class VEstadistica extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(298, 298, 298)
                         .addComponent(pTablaSec, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(93, 93, 93)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(pTablaSec1, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(192, 192, 192))))
@@ -271,15 +329,16 @@ public class VEstadistica extends javax.swing.JFrame {
                             .addComponent(jLabel6))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(15, 15, 15))
+                        .addGap(35, 35, 35))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jLabel2)
                         .addGap(2, 2, 2)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(pTablaSec, javax.swing.GroupLayout.PREFERRED_SIZE, 196, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(pTablaSec1, javax.swing.GroupLayout.PREFERRED_SIZE, 196, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addGap(20, 20, 20)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(pTablaSec, javax.swing.GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE)
+                            .addComponent(pTablaSec1, javax.swing.GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE)
+                            .addComponent(jScrollPane1))
+                        .addGap(20, 20, 20)))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(lienzoSec, javax.swing.GroupLayout.DEFAULT_SIZE, 430, Short.MAX_VALUE)
                     .addComponent(lienzoConc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -298,6 +357,26 @@ public class VEstadistica extends javax.swing.JFrame {
     private void tiempoCTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tiempoCTFActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_tiempoCTFActionPerformed
+
+    private void CPUBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CPUBActionPerformed
+        // TODO add your handling code here:
+        if (estadisticaCPULogicoConcurrente != null) {
+            JPanel panel = createChartPanel(estadisticaCPULogicoConcurrente);
+            lienzoConc.removeAll();
+            lienzoConc.add(panel, BorderLayout.CENTER);
+            lienzoConc.validate();
+        }
+        if (estadisticaCPULogicoSecuencial != null) {
+            JPanel panel = createChartPanel(estadisticaCPULogicoSecuencial);
+            lienzoSec.removeAll();
+            lienzoSec.add(panel, BorderLayout.CENTER);
+            lienzoSec.validate();
+        }
+
+        for (int i = 0; i < paginaWeb.size(); i++) {
+            txtPaginasWeb.setText((i+1) + "   " + paginaWeb.get(i));
+        }
+    }//GEN-LAST:event_CPUBActionPerformed
 
     /**
      * @param args the command line arguments
@@ -348,6 +427,7 @@ public class VEstadistica extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JPanel lienzoConc;
@@ -358,5 +438,6 @@ public class VEstadistica extends javax.swing.JFrame {
     private javax.swing.JTable tablaIncidenciaSec;
     private javax.swing.JTextField tiempoCTF;
     private javax.swing.JTextField tiempoSTF;
+    private javax.swing.JTextArea txtPaginasWeb;
     // End of variables declaration//GEN-END:variables
 }

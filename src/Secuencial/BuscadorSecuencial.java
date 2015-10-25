@@ -94,18 +94,17 @@ public class BuscadorSecuencial {
 
     public void buscar(String palabra) throws IOException, SigarException {
         //borrar
-        this.archivo.direccionArchivo = "//home//manfred//NetBeansProjects//TaskforceProjects//Buscador//trunk//src//Secuencial//urls.txt";
+        //this.archivo.direccionArchivo = "//home//manfred//NetBeansProjects//TaskforceProjects//Buscador//trunk//src//Secuencial//urls.txt";
         this.archivo.direccionArchivo = "/home/carlos/Escritorio/urlWebPages.txt";
         //fin de borrar
         this.urlWebPages = archivo.leer();
         
         if (urlWebPages != null) {
-            for (int i = 0; i < urlWebPages.size(); i++) {
-                
-                Document doc = Jsoup.connect(this.urlWebPages.get(i)).get();
+            for (String urlWebPage : urlWebPages) {
+                Document doc = Jsoup.connect(urlWebPage).get();
                 String contenido = doc.body().text();
                 //  System.out.println(urls[i]);
-                Resultado resultado = buscarCoincidencia(palabra, contenido, urlWebPages.get(i));
+                Resultado resultado = buscarCoincidencia(palabra, contenido, urlWebPage);
                 this.resultados.add(resultado);
                 //ordenar();
             }

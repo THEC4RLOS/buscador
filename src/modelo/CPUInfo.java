@@ -25,7 +25,7 @@ public class CPUInfo {
     }
     
     public void imprimirUsoProcesadores(){
-        System.out.println("hola");
+        
         for (CpuPerc[] parCpu: usoProcesadores){
             for (int i = 0; i < parCpu.length; i++)
             System.out.println("Consumo de CPU " + i + "\t"
